@@ -1,0 +1,25 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 14
+    },
+    "auditLog": "J:\\2ndLevel\\finalAssignment\\travel-ageny-backend\\logs\\winston\\errors\\.6aa5234b491764cd5013105641dc34db277c8ed1-audit.json",
+    "files": [
+        {
+            "date": 1697233060936,
+            "name": "J:\\2ndLevel\\finalAssignment\\travel-ageny-backend\\logs\\winston\\errors\\phu-2023-13-10-23-error.log",
+            "hash": "291b1942ad731c804ab7168d4cd4475d93eb78e30a1323b49c8bf8d0120dbe38"
+        },
+        {
+            "date": 1697235577837,
+            "name": "J:\\2ndLevel\\finalAssignment\\travel-ageny-backend\\logs\\winston\\errors\\phu-2023-14-10-00-error.log",
+            "hash": "30e191450f4bec57cd1c01524a01b66f89a41aff531d551a1e07712448c1ebde"
+        },
+        {
+            "date": 1697238037115,
+            "name": "J:\\2ndLevel\\finalAssignment\\travel-ageny-backend\\logs\\winston\\errors\\phu-2023-14-10-01-error.log",
+            "hash": "f622ce787753b29eb24fb8a4afe1314afd1a0de948547ed50ba6161751379ffe"
+        }
+    ],
+    "hashType": "sha256"
+}
