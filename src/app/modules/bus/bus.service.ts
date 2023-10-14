@@ -114,13 +114,62 @@ const updateOneInDB = async (
   id: string,
   payload: Partial<Bus>
 ): Promise<Bus> => {
-  const result = await prisma.bus.update({
-    where: {
-      id,
-    },
-    data: payload,
-  });
-  return result;
+  const { totalSit } = payload;
+
+  if (totalSit && totalSit !== undefined) {
+    if (totalSit > 40) {
+      throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid Sit Numbers');
+    }
+
+    const bus = await prisma.bus.findUnique({
+      where: { id },
+      include: { bus_Sits: true },
+    });
+
+    if (!bus) {
+      throw new ApiError(httpStatus.NOT_FOUND, 'Bus not found');
+    }
+
+    const numberOfSeatsToCreate = totalSit || 40;
+    const availableSeatNumbers = Object.values(BusSitNumber);
+    const seatsToDelete = bus.bus_Sits.slice(numberOfSeatsToCreate);
+
+    const updatedBus = await prisma.$transaction(async transactionClient => {
+      // Update the bus record except for 'totalSit'
+      const result = await transactionClient.bus.update({
+        where: { id },
+        data: payload,
+      });
+
+      // Delete extra seats if needed
+      for (const seat of seatsToDelete) {
+        await transactionClient.bus_Sit.delete({
+          where: { id: seat.id },
+        });
+      }
+
+      // Create new seats if needed
+      for (let i = bus.bus_Sits.length; i < numberOfSeatsToCreate; i++) {
+        await transactionClient.bus_Sit.create({
+          data: {
+            sitNumber: availableSeatNumbers[i],
+            busId: id,
+          },
+        });
+      }
+
+      return result;
+    });
+
+    return updatedBus;
+  } else {
+    // If 'totalSit' is not being updated, simply update the bus record
+    const result = await prisma.bus.update({
+      where: { id },
+      data: payload,
+    });
+    return result;
+  }
 };
 
 const deleteByIdFromDB = async (id: string): Promise<Bus> => {
