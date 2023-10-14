@@ -4,23 +4,56 @@ import httpStatus from 'http-status';
 import config from '../../../config';
 import catchAsync from '../../../shared/catchAsync';
 import sendResponse from '../../../shared/sendResponse';
-import { ILoginUserResponse, IUser } from './auth.interface';
+import { ILoginUserResponse } from './auth.interface';
 import { AuthService } from './auth.service';
 
 const createUser = catchAsync(async (req: Request, res: Response) => {
   const { ...userData } = req.body;
-  const result = await await AuthService.createUser(userData);
+  const { email, password } = userData;
+  const result = await AuthService.createUser(userData);
+  const loginData = {
+    email,
+    password,
+  };
+  if (result) {
+    const signIn = await AuthService.loginUser(loginData);
+    const { refreshToken, ...others } = signIn;
 
-  sendResponse<IUser>(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: 'User Created successfully!',
-    data: result,
-  });
+    const cookieOptions = {
+      secure: config.env === 'production',
+      httpOnly: true,
+    };
+
+    res.cookie('refreshToken', refreshToken, cookieOptions);
+    sendResponse<ILoginUserResponse>(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'User created Successfully',
+      data: others,
+    });
+  }
 });
 
 const loginUser = catchAsync(async (req: Request, res: Response) => {
   const result = await AuthService.loginUser(req.body);
+  const { refreshToken, ...others } = result;
+  // set refresh token into cookie
+  const cookieOptions = {
+    secure: config.env === 'production',
+    httpOnly: true,
+  };
+  res.cookie('refreshToken', refreshToken, cookieOptions);
+
+  sendResponse<ILoginUserResponse>(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'User logged in Successfully',
+    data: others,
+  });
+});
+
+const socialLogin = catchAsync(async (req: Request, res: Response) => {
+  const result = await AuthService.socialLogin(req.body);
   const { refreshToken, ...others } = result;
   // set refresh token into cookie
   const cookieOptions = {
@@ -50,4 +83,9 @@ const changePassword = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-export const AuthController = { createUser, loginUser, changePassword };
+export const AuthController = {
+  createUser,
+  socialLogin,
+  loginUser,
+  changePassword,
+};

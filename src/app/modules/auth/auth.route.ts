@@ -12,10 +12,16 @@ router.post(
   validateRequest(AuthValidation.createUserZodSchema),
   AuthController.createUser
 );
+
 router.post(
   '/signIn',
   validateRequest(AuthValidation.loginZodSchema),
   AuthController.loginUser
+);
+router.post(
+  '/socialSignIn',
+  //validateRequest(AuthValidation.loginZodSchema),
+  AuthController.socialLogin
 );
 
 router.patch(

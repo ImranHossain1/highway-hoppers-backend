@@ -7,15 +7,20 @@ import config from '../../../config';
 import ApiError from '../../../errors/ApiError';
 import { jwtHelpers } from '../../../helpers/jwtHelpers';
 import { prisma } from '../../../shared/prisma';
-import { IChangePassword, ILoginUserResponse } from './auth.interface';
+import {
+  IChangePassword,
+  ILoginUser,
+  ILoginUserResponse,
+} from './auth.interface';
 
 const createUser = async (data: User): Promise<User | null> => {
   data.password = bcrypt.hashSync(data.password, 12);
+  data.isAllFieldGiven = true;
   const result = await prisma.user.create({ data });
   return result;
 };
 
-const loginUser = async (user: User): Promise<ILoginUserResponse> => {
+const loginUser = async (user: ILoginUser): Promise<ILoginUserResponse> => {
   const result = await prisma.user.findUnique({
     where: {
       email: user.email,
@@ -30,6 +35,34 @@ const loginUser = async (user: User): Promise<ILoginUserResponse> => {
 
   if (!userExist) {
     throw new ApiError(httpStatus.UNAUTHORIZED, 'Invalid credentials');
+  }
+
+  // create access token and refresh token
+  const { id: userId, role } = result;
+
+  const accessToken = jwtHelpers.createToken(
+    { userId, role },
+    config.jwt.secret as Secret,
+    config.jwt.expires_in as string
+  );
+
+  const refreshToken = jwtHelpers.createToken(
+    { userId, role },
+    config.jwt.secret as Secret,
+    config.jwt.refresh_expires_in as string
+  );
+
+  return { accessToken, refreshToken };
+};
+const socialLogin = async (user: User): Promise<ILoginUserResponse> => {
+  const result = await prisma.user.findUnique({
+    where: {
+      email: user.email,
+    },
+  });
+
+  if (!result) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
   }
 
   // create access token and refresh token
@@ -87,4 +120,9 @@ const changePassword = async (
   });
 };
 
-export const AuthService = { createUser, loginUser, changePassword };
+export const AuthService = {
+  createUser,
+  socialLogin,
+  loginUser,
+  changePassword,
+};

@@ -31,7 +31,7 @@ const createUserZodSchema = z.object({
 const loginZodSchema = z.object({
   body: z.object({
     email: z.string({
-      required_error: 'ID is required',
+      required_error: 'Email is required',
     }),
     password: z.string({
       required_error: 'Password is required',

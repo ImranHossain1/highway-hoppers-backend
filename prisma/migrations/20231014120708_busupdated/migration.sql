@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "buses" ALTER COLUMN "busType" DROP NOT NULL,
+ALTER COLUMN "busType" SET DEFAULT 'Non_AC';

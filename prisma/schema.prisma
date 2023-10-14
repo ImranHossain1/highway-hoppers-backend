@@ -17,24 +17,205 @@ enum Role {
   DRIVER
 }
 
+enum WeekDays {
+  SATURDAY
+  SUNDAY
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+}
+
+enum Bus_Schedul_Status {
+  Upcoming
+  Ongoing
+  Arrived
+}
+
+enum BookingStatus {
+  Booked
+  Completed
+  Cancelled
+}
+
+enum PaymentStatus {
+  Pending
+  Completed
+}
+
 enum Gender {
   MALE
   FEMALE
 }
 
+enum BusType {
+  AC
+  Non_AC
+}
+
+enum BusSitNumber {
+  A1
+  A2
+  A3
+  A4
+  B1
+  B2
+  B3
+  B4
+  C1
+  C2
+  C3
+  C4
+  D1
+  D2
+  D3
+  D4
+  E1
+  E2
+  E3
+  E4
+  F1
+  F2
+  F3
+  F4
+  G1
+  G2
+  G3
+  G4
+  H1
+  H2
+  H3
+  H4
+  I1
+  I2
+  I3
+  I4
+  J1
+  J2
+  J3
+  J4
+}
+
 model User {
-  id         String   @id @default(uuid())
-  name       String
-  email      String   @unique
-  password   String
-  DOB        String
-  gender     Gender
-  role       Role     @default(TRAVELLER)
-  contactNo  String
-  address    String
-  profileImg String   @default("https://t4.ftcdn.net/jpg/02/29/75/83/360_F_229758328_7x8jwCwjtBMmC6rgFzLFhZoEpLobB6L8.jpg")
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id              String         @id @default(uuid())
+  name            String
+  email           String         @unique
+  password        String
+  DOB             String
+  gender          Gender
+  role            Role           @default(TRAVELLER)
+  contactNo       String
+  address         String
+  isAllFieldGiven Boolean        @default(false)
+  profileImg      String         @default("https://t4.ftcdn.net/jpg/02/29/75/83/360_F_229758328_7x8jwCwjtBMmC6rgFzLFhZoEpLobB6L8.jpg")
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  bus_Schedules   Bus_Schedule[]
+  bookings        Booking[]
+  reviews         Review[]
+  faqs            Faq[]
 
   @@map("users")
+}
+
+model Faq {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  questions String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("faqs")
+}
+
+model Bus {
+  id            String         @id @default(uuid())
+  busType       BusType?       @default(Non_AC)
+  busNumber     String         @unique
+  totalSit      Int?           @default(40)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  bus_Schedules Bus_Schedule[]
+  bus_Sits      Bus_Sit[]
+
+  @@map("buses")
+}
+
+model Bus_Sit {
+  id        String       @id @default(uuid())
+  sitNumber BusSitNumber
+  busId     String
+  bus       Bus          @relation(fields: [busId], references: [id])
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  @@map("bus_sit")
+}
+
+model Bus_Schedule {
+  id                  String               @id @default(uuid())
+  startTime           String
+  endTime             String
+  startingPoint       String
+  endPoint            String
+  weekDays            WeekDays
+  date                DateTime
+  bookedSit           Int
+  busFare             Float
+  status              Bus_Schedul_Status
+  busId               String
+  bus                 Bus                  @relation(fields: [busId], references: [id])
+  driverId            String
+  user                User                 @relation(fields: [driverId], references: [id])
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  booking             Booking[]
+  signle_Trip_Incomes Signle_Trip_Income[]
+
+  @@map("busSchedules")
+}
+
+model Signle_Trip_Income {
+  id            String       @id @default(uuid())
+  busScheduleId String
+  bus_Schedule  Bus_Schedule @relation(fields: [busScheduleId], references: [id])
+  earnings      Float
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  @@map("singleTripIncomes")
+}
+
+model Booking {
+  id String @id @default(uuid())
+
+  userId        String
+  user          User         @relation(fields: [userId], references: [id])
+  busScheduleId String
+  bus_Schedule  Bus_Schedule @relation(fields: [busScheduleId], references: [id])
+
+  bookingStatus BookingStatus
+  paymentStatus PaymentStatus
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  review        Review?
+
+  @@map("bookings")
+}
+
+model Review {
+  id        String  @id @default(uuid())
+  userId    String
+  user      User    @relation(fields: [userId], references: [id])
+  bookingId String  @unique
+  booking   Booking @relation(fields: [bookingId], references: [id])
+
+  bookingStatus BookingStatus
+  paymentStatus PaymentStatus
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@map("reviews")
 }
