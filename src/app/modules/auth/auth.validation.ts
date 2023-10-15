@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { gender } from './auth.constant';
 
 const createUserZodSchema = z.object({
   body: z.object({
@@ -14,7 +15,7 @@ const createUserZodSchema = z.object({
     DOB: z.string({
       required_error: 'Date of Birth is required',
     }),
-    gender: z.string({
+    gender: z.enum([...gender] as [string, ...string[]], {
       required_error: 'Gender is required',
     }),
     role: z.string().optional(),
