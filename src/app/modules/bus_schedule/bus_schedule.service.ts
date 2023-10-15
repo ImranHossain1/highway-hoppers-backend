@@ -26,11 +26,21 @@ const insertIntoDB = async (data: Bus_Schedule): Promise<Bus_Schedule> => {
 
   await BusScheduleUtils.checkBusAvailable(data);
   await BusScheduleUtils.checkDriverAvailable(data);
+  const bus_scheduleResult = await prisma.$transaction(
+    async prismaTransactionClient => {
+      const result = await prismaTransactionClient.bus_Schedule.create({
+        data,
+      });
+      await prismaTransactionClient.signle_Trip_Income.create({
+        data: {
+          busScheduleId: result.id,
+        },
+      });
+      return result;
+    }
+  );
 
-  const result = await prisma.bus_Schedule.create({
-    data,
-  });
-  return result;
+  return bus_scheduleResult;
 };
 const getAllFromDB = async (
   filters: IBusScheduleFilterRequest,

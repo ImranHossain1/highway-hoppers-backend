@@ -1,0 +1,33 @@
+{
+    "name": "Rohim Miah",
+    "email": "Rohim@gmail.com",
+    "password": "user123",
+    "DOB": "30/06/1996",
+    "gender": "MALE",
+    "contactNo": "165456414",
+    "address": "Dhaka",
+    "role": "DRIVER"
+}
+
+{
+    "name": "Korim Miah",
+    "email": "Korim@gmail.com",
+    "password": "user123",
+    "DOB": "30/06/1996",
+    "gender": "MALE",
+    "contactNo": "165456414",
+    "address": "Dhaka",
+    "role": "DRIVER"
+}
+
+//Super Admin
+{
+    "name": "Imran Hossain",
+    "email": "imranhossain1402@gmail.com",
+    "password": "admin123",
+    "DOB": "30/06/1996",
+    "gender": "MALE",
+    "contactNo": "165456414",
+    "address": "Dhaka",
+    "role": "SUPERADMIN"
+}

@@ -34,6 +34,7 @@ enum Bus_Schedul_Status {
 }
 
 enum BookingStatus {
+  Pending
   Booked
   Completed
   Cancelled
@@ -69,9 +70,10 @@ model User {
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
   bus_Schedules   Bus_Schedule[]
-  bookings        Booking[]
-  reviews         Review[]
-  faqs            Faq[]
+
+  reviews  Review[]
+  faqs     Faq[]
+  bookings Booking[]
 
   @@map("users")
 }
@@ -107,43 +109,35 @@ model Bus_Sit {
   bus       Bus          @relation(fields: [busId], references: [id])
   createdAt DateTime     @default(now())
   updatedAt DateTime     @updatedAt
+  bookings  Booking[]
 
   @@map("bus_sit")
 }
 
 model Bus_Schedule {
-  id                  String               @id @default(uuid())
-  startTime           String
-  endTime             String
-  startDate           String
-  endDate             String
-  startingPoint       String
-  endPoint            String
-  dayOfWeek           WeekDays
-  bookedSit           Int?                 @default(0)
-  busFare             Float
-  status              Bus_Schedul_Status?  @default(Upcoming)
-  busId               String
-  bus                 Bus                  @relation(fields: [busId], references: [id])
-  driverId            String
-  user                User                 @relation(fields: [driverId], references: [id])
-  createdAt           DateTime             @default(now())
-  updatedAt           DateTime             @updatedAt
-  booking             Booking[]
-  signle_Trip_Incomes Signle_Trip_Income[]
+  id            String              @id @default(uuid())
+  startTime     String
+  endTime       String
+  startDate     String
+  endDate       String
+  startingPoint String
+  endPoint      String
+  dayOfWeek     WeekDays
+  bookedSit     Int?                @default(0)
+  PendingSit    Int?                @default(0)
+  busFare       Float
+  status        Bus_Schedul_Status? @default(Upcoming)
+  busId         String
+  bus           Bus                 @relation(fields: [busId], references: [id])
+  driverId      String
+  user          User                @relation(fields: [driverId], references: [id])
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+
+  signle_Trip_Income Signle_Trip_Income?
+  bookings           Booking[]
 
   @@map("busSchedules")
-}
-
-model Signle_Trip_Income {
-  id            String       @id @default(uuid())
-  busScheduleId String
-  bus_Schedule  Bus_Schedule @relation(fields: [busScheduleId], references: [id])
-  earnings      Float
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
-
-  @@map("singleTripIncomes")
 }
 
 model Booking {
@@ -154,13 +148,26 @@ model Booking {
   busScheduleId String
   bus_Schedule  Bus_Schedule @relation(fields: [busScheduleId], references: [id])
 
-  bookingStatus BookingStatus
-  paymentStatus PaymentStatus
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
+  bookingStatus BookingStatus? @default(Pending)
+  paymentStatus PaymentStatus? @default(Pending)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
   review        Review?
+  Bus_Sit       Bus_Sit        @relation(fields: [bus_SitId], references: [id])
+  bus_SitId     String
 
   @@map("bookings")
+}
+
+model Signle_Trip_Income {
+  id            String       @id @default(uuid())
+  busScheduleId String       @unique
+  bus_Schedule  Bus_Schedule @relation(fields: [busScheduleId], references: [id])
+  earnings      Float        @default(0)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  @@map("singleTripIncomes")
 }
 
 model Review {
