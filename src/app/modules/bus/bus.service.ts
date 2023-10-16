@@ -171,38 +171,7 @@ const updateOneInDB = async (
     return result;
   }
 };
-/* const deleteByIdFromDB = async (id: string): Promise<Bus> => {
-  const bus = await prisma.bus.findUnique({
-    where: { id },
-    include: { bus_Sits: true },
-  });
 
-  if (!bus) {
-    throw new ApiError(httpStatus.NOT_FOUND, 'Bus not found');
-  }
-
-  const deleteBus = await prisma.$transaction(async transactionClient => {
-    // Delete associated bus_sits
-    await asyncForEach(bus.bus_Sits, async (bus_Sit: Bus_Sit) => {
-      const sitId = bus_Sit.id;
-      await transactionClient.bus_Sit.delete({
-        where: { id: sitId },
-      });
-    });
-
-    // Delete the bus
-    const result = await transactionClient.bus.delete({
-      where: {
-        id,
-      },
-    });
-
-    return result;
-  });
-
-  return deleteBus;
-};
- */
 export const BusService = {
   insertIntoDB,
   getAllFromDB,

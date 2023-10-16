@@ -50,17 +50,6 @@ const updateOneInDB = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-/* const deleteByIdFromDB = catchAsync(async (req: Request, res: Response) => {
-  const { id } = req.params;
-  const result = await BusService.deleteByIdFromDB(id);
-  sendResponse(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: 'AcademicDepartment delete successfully',
-    data: result,
-  });
-});
- */
 export const BusController = {
   insertIntoDB,
   getByIdFromDB,
