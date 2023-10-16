@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { daysInWeek } from './bus_schedule.constants';
+import { busSchedulestatus, daysInWeek } from './bus_schedule.constants';
 
 const timeStringSchema = z.string().refine(
   time => {
@@ -88,8 +88,16 @@ const update = z.object({
       .optional(),
   }),
 });
+const updateStatus = z.object({
+  body: z.object({
+    status: z.enum([...busSchedulestatus] as [string, ...string[]], {
+      required_error: 'Status is required',
+    }),
+  }),
+});
 
 export const BusValidation = {
   create,
   update,
+  updateStatus,
 };

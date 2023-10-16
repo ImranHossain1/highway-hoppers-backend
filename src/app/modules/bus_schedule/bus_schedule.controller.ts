@@ -62,6 +62,16 @@ const updateOneInDB = catchAsync(async (req: Request, res: Response) => {
     data: result,
   });
 });
+const updateScheduleStatus = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const result = await BusScheduleService.updateScheduleStatus(id, req.body);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Bus Schedule status updated successfully',
+    data: result,
+  });
+});
 
 const deleteByIdFromDB = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
@@ -79,4 +89,5 @@ export const BusController = {
   getByIdFromDB,
   updateOneInDB,
   deleteByIdFromDB,
+  updateScheduleStatus,
 };

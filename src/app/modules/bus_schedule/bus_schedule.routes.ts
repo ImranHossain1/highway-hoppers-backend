@@ -29,6 +29,12 @@ router.patch(
   auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
   BusController.updateOneInDB
 );
+router.patch(
+  '/:id/update-status',
+  validateRequest(BusValidation.updateStatus),
+  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
+  BusController.updateScheduleStatus
+);
 router.delete(
   '/:id/delete-schedule',
   auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),

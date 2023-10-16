@@ -1,4 +1,9 @@
-import { Bus_Schedule, Prisma } from '@prisma/client';
+import {
+  BookingStatus,
+  Bus_Schedul_Status,
+  Bus_Schedule,
+  Prisma,
+} from '@prisma/client';
 import httpStatus from 'http-status';
 import ApiError from '../../../errors/ApiError';
 import { paginationHelpers } from '../../../helpers/paginationHelper';
@@ -13,6 +18,7 @@ import {
 import {
   Bus_Schedule_Partial,
   IBusScheduleFilterRequest,
+  IBusScheduleUpdate,
 } from './bus_schedule.interface';
 import { BusScheduleUtils } from './bus_schedule.utils';
 
@@ -169,6 +175,61 @@ const updateOneInDB = async (
   });
   return result;
 };
+const updateScheduleStatus = async (
+  id: string,
+  payload: IBusScheduleUpdate
+): Promise<{
+  message: string;
+}> => {
+  const isScheduleAvailable = await prisma.bus_Schedule.findUnique({
+    where: {
+      id,
+      status: Bus_Schedul_Status.Arrived,
+    },
+  });
+  if (isScheduleAvailable) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Bus is already Arrived');
+  }
+  if (payload.status === Bus_Schedul_Status.Ongoing) {
+    await prisma.bus_Schedule.update({
+      where: {
+        id,
+      },
+      data: payload,
+    });
+    return {
+      message: 'Journey Started',
+    };
+  } else {
+    await prisma.$transaction(async transactionClient => {
+      const result = await transactionClient.bus_Schedule.update({
+        where: {
+          id,
+        },
+        data: {
+          status: payload.status,
+        },
+      });
+      await transactionClient.booking.deleteMany({
+        where: {
+          busScheduleId: result.id,
+          bookingStatus: BookingStatus.Pending,
+        },
+      });
+      await transactionClient.booking.updateMany({
+        where: {
+          busScheduleId: result.id,
+        },
+        data: {
+          bookingStatus: BookingStatus.Completed,
+        },
+      });
+    });
+    return {
+      message: 'Journey Completed!',
+    };
+  }
+};
 
 const deleteByIdFromDB = async (id: string): Promise<Bus_Schedule> => {
   const result = await prisma.bus_Schedule.delete({
@@ -188,4 +249,5 @@ export const BusScheduleService = {
   getAllFromDB,
   updateOneInDB,
   deleteByIdFromDB,
+  updateScheduleStatus,
 };

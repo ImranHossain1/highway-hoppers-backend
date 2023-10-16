@@ -8,6 +8,9 @@ export type IGenericResponse<T> = {
   };
   data: T;
 };
+export type IGenericResponseBooking<T> = {
+  data: T;
+};
 
 export type IGenericErrorResponse = {
   statusCode: number;

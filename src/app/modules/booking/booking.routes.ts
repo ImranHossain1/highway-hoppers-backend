@@ -28,6 +28,51 @@ router.patch(
   ),
   BookingController.completePendingBooking
 );
+router.delete(
+  '/cancel-all-pending-booking',
+  auth(
+    ENUM_USER_ROLE.SUPER_ADMIN,
+    ENUM_USER_ROLE.ADMIN,
+    ENUM_USER_ROLE.DRIVER,
+    ENUM_USER_ROLE.TRAVELLER
+  ),
+  BookingController.cancelAllPendingBooking
+);
+router.delete(
+  '/:id/cancel-single-pending-booking',
+  auth(
+    ENUM_USER_ROLE.SUPER_ADMIN,
+    ENUM_USER_ROLE.ADMIN,
+    ENUM_USER_ROLE.DRIVER,
+    ENUM_USER_ROLE.TRAVELLER
+  ),
+  BookingController.cancelSinglePendingBooking
+);
+router.get(
+  '/get-all-Pending-Booking',
+  auth(
+    ENUM_USER_ROLE.SUPER_ADMIN,
+    ENUM_USER_ROLE.ADMIN,
+    ENUM_USER_ROLE.DRIVER,
+    ENUM_USER_ROLE.TRAVELLER
+  ),
+  BookingController.getAllPendingBooking
+);
+router.get(
+  '/get-all-bookings',
+  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
+  BookingController.getAllFromDb
+);
+router.get(
+  '/get-user-bookings',
+  auth(
+    ENUM_USER_ROLE.SUPER_ADMIN,
+    ENUM_USER_ROLE.ADMIN,
+    ENUM_USER_ROLE.DRIVER,
+    ENUM_USER_ROLE.TRAVELLER
+  ),
+  BookingController.getUserFromDb
+);
 
 export const BookingRoutes = router;
 

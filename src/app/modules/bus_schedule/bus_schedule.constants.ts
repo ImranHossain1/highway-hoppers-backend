@@ -10,12 +10,14 @@ export const busScheduleFilterableFields: string[] = [
   'startingPoint',
   'endPoint',
   'busFare',
+  'status',
 ];
 export const busScheduleSearchableFields = [
   'startDate',
   'endDate',
   'startingPoint',
   'endPoint',
+  'status',
 ];
 
 export const busScheduleRelationalFields = ['busId', 'driverId'];
@@ -34,3 +36,4 @@ export const daysInWeek = [
   'Thursday',
   'Friday',
 ];
+export const busSchedulestatus = ['Ongoing', 'Arrived'];
