@@ -41,7 +41,7 @@ const checkDriverAvailable = async (data: Bus_Schedule) => {
     where: {
       dayOfWeek: data.dayOfWeek,
       startDate: data.startDate,
-      user: {
+      driver: {
         id: data.driverId,
       },
     },
@@ -112,7 +112,7 @@ const checkDriverAvailableUpdate = async (
     where: {
       dayOfWeek: data.dayOfWeek,
       startDate: data.startDate,
-      user: {
+      driver: {
         id: data.driverId,
       },
       NOT: {
@@ -146,5 +146,5 @@ export const BusScheduleUtils = {
   checkBusAvailable,
   checkBusAvailableUpdate,
   checkDriverAvailable,
-  checkDriverAvailableUpdate
+  checkDriverAvailableUpdate,
 };

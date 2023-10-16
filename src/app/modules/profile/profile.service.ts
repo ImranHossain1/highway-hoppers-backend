@@ -9,15 +9,8 @@ const getUserProfile = async (userId: string): Promise<IMyProfile | null> => {
     where: {
       id: userId,
     },
-    select: {
-      name: true,
-      role: true,
-      DOB: true,
-      gender: true,
-      email: true,
-      contactNo: true,
-      profileImg: true,
-      address: true,
+    include: {
+      driver: true,
     },
   });
 

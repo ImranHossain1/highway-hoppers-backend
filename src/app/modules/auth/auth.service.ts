@@ -17,6 +17,7 @@ const createUser = async (data: User): Promise<User | null> => {
   data.password = bcrypt.hashSync(data.password, 12);
   data.isAllFieldGiven = true;
   const result = await prisma.user.create({ data });
+
   return result;
 };
 

@@ -1,7 +1,7 @@
 import {
   Booking,
   BookingStatus,
-  Bus_Schedul_Status,
+  Bus_Schedule_Status,
   PaymentStatus,
   Prisma,
 } from '@prisma/client';
@@ -25,7 +25,7 @@ const insertIntoDB = async (data: IBookingCreateData, authUserId: string) => {
   const isScheduleAvailable = await prisma.bus_Schedule.findUnique({
     where: {
       id: data.busScheduleId,
-      status: Bus_Schedul_Status.Arrived,
+      status: Bus_Schedule_Status.Arrived,
     },
   });
   if (isScheduleAvailable) {

@@ -1,7 +1,8 @@
 import {
   BookingStatus,
-  Bus_Schedul_Status,
   Bus_Schedule,
+  Bus_Schedule_Status,
+  Bus_Sit,
   Prisma,
 } from '@prisma/client';
 import httpStatus from 'http-status';
@@ -103,7 +104,7 @@ const getAllFromDB = async (
           },
     include: {
       bus: true,
-      user: true,
+      driver: true,
     },
   });
   const total = await prisma.bus_Schedule.count({
@@ -124,12 +125,49 @@ const getByIdFromDB = async (id: string): Promise<Bus_Schedule | null> => {
     where: {
       id,
     },
-    include: {
-      bus: true,
-      user: true,
+  });
+  if (!result) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Journey Not Found');
+  }
+
+  return result;
+};
+const getAvailableSits = async (id: string): Promise<Bus_Sit[] | null> => {
+  const result = await prisma.bus_Schedule.findUnique({
+    where: {
+      id,
     },
   });
-  return result;
+
+  if (!result) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Journey Not Found');
+  }
+  if (result.status === Bus_Schedule_Status.Arrived) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Journey is Already Finished');
+  }
+
+  const getBookedSits = await prisma.booking.findMany({
+    where: {
+      busScheduleId: id,
+    },
+  });
+
+  // Extract the booked bus_SitIds from the bookings
+  const bookedBusSitIds = getBookedSits.map(booking => booking.bus_SitId);
+
+  // Retrieve all seats associated with the bus
+  const allBusSits = await prisma.bus_Sit.findMany({
+    where: {
+      busId: result.busId,
+    },
+  });
+
+  // Filter out seats that are not booked
+  const availableSeats = allBusSits.filter(busSit => {
+    return !bookedBusSitIds.includes(busSit.id);
+  });
+
+  return availableSeats;
 };
 
 const updateOneInDB = async (
@@ -170,9 +208,10 @@ const updateOneInDB = async (
     data: payload,
     include: {
       bus: true,
-      user: true,
+      driver: true,
     },
   });
+
   return result;
 };
 const updateScheduleStatus = async (
@@ -184,13 +223,13 @@ const updateScheduleStatus = async (
   const isScheduleAvailable = await prisma.bus_Schedule.findUnique({
     where: {
       id,
-      status: Bus_Schedul_Status.Arrived,
+      status: Bus_Schedule_Status.Arrived,
     },
   });
   if (isScheduleAvailable) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Bus is already Arrived');
   }
-  if (payload.status === Bus_Schedul_Status.Ongoing) {
+  if (payload.status === Bus_Schedule_Status.Ongoing) {
     await prisma.bus_Schedule.update({
       where: {
         id,
@@ -238,11 +277,12 @@ const deleteByIdFromDB = async (id: string): Promise<Bus_Schedule> => {
     },
     include: {
       bus: true,
-      user: true,
+      driver: true,
     },
   });
   return result;
 };
+
 export const BusScheduleService = {
   insertIntoDB,
   getByIdFromDB,
@@ -250,4 +290,5 @@ export const BusScheduleService = {
   updateOneInDB,
   deleteByIdFromDB,
   updateScheduleStatus,
+  getAvailableSits,
 };

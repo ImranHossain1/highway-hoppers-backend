@@ -1,18 +1,21 @@
+import { Gender, Role } from '@prisma/client';
+
 export type ILoginUser = {
   email: string;
   password: string;
 };
 
 export type IUser = {
-  id: string;
-  role: string;
-  password: string;
+  name: string;
   email: string;
+  password: string;
   DOB: string;
-  gender: string;
+  gender: Gender;
+  role: Role;
   contactNo: string;
   address: string;
   profileImg: string;
+  salary?: number;
 };
 export type ILoginUserResponse = {
   accessToken: string;

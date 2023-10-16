@@ -14,6 +14,11 @@ router.post(
   BusController.insertIntoDB
 );
 router.get(
+  '/:id/availableSits',
+  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
+  BusController.getAvailableSits
+);
+router.get(
   '/:id',
   auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
   BusController.getByIdFromDB

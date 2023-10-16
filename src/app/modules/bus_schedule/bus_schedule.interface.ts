@@ -1,4 +1,4 @@
-import { Bus_Schedul_Status, WeekDays } from '@prisma/client';
+import { Bus_Schedule_Status, WeekDays } from '@prisma/client';
 
 export type IBusScheduleFilterRequest = {
   searchTerm?: string | undefined;
@@ -14,5 +14,5 @@ export type Bus_Schedule_Partial = {
 };
 
 export type IBusScheduleUpdate = {
-  status: Bus_Schedul_Status;
+  status: Bus_Schedule_Status;
 };
