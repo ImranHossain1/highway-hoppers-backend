@@ -192,6 +192,7 @@ const cancelAllPendingBooking = async (authUserId: string) => {
         const result = await prismaTransactionClient.booking.delete({
           where: {
             id: pendingBooking.id,
+            userId: authUserId,
           },
         });
 
@@ -262,6 +263,12 @@ const getAllPendingBooking = async (
       Bus_Sit: true,
     },
   });
+  if (!result.length) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      "You don't have any pending bookings available."
+    );
+  }
   return {
     data: result,
   };

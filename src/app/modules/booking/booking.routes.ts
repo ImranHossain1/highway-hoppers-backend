@@ -40,12 +40,7 @@ router.delete(
 );
 router.delete(
   '/:id/cancel-single-pending-booking',
-  auth(
-    ENUM_USER_ROLE.SUPER_ADMIN,
-    ENUM_USER_ROLE.ADMIN,
-    ENUM_USER_ROLE.DRIVER,
-    ENUM_USER_ROLE.TRAVELLER
-  ),
+  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
   BookingController.cancelSinglePendingBooking
 );
 router.get(

@@ -94,7 +94,11 @@ const getByIdFromDB = async (id: string): Promise<Review | null> => {
     include: {
       booking: {
         include: {
-          bus_Schedule: true,
+          bus_Schedule: {
+            include: {
+              driver: true,
+            },
+          },
         },
       },
     },
@@ -109,7 +113,11 @@ const getAllReviewFromDB = async (): Promise<Review[]> => {
     include: {
       booking: {
         include: {
-          bus_Schedule: true,
+          bus_Schedule: {
+            include: {
+              driver: true,
+            },
+          },
         },
       },
       user: true,
@@ -120,66 +128,145 @@ const getAllReviewFromDB = async (): Promise<Review[]> => {
   }
   return result;
 };
-
 const updateOneInDB = async (
   id: string,
   userId: string,
   payload: Partial<Review>
-): Promise<Review> => {
-  const isReviewExists = await prisma.review.findUnique({
+): Promise<{
+  message: string;
+}> => {
+  const isReviewExists = await prisma.review.findFirst({
     where: {
-      id,
+      id: id,
       userId: userId,
     },
     include: {
-      booking: true,
+      booking: {
+        include: {
+          bus_Schedule: true,
+        },
+      },
     },
   });
+
   if (!isReviewExists) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Review is not found');
   }
 
-  const result = await prisma.review.update({
-    where: {
-      id,
-      userId: userId,
-    },
-    data: payload,
-    include: {
-      booking: true,
-    },
-  });
-  return result;
-};
+  await prisma.$transaction(async transactionClient => {
+    if (payload.rating) {
+      const driverData = await transactionClient.driver.findUnique({
+        where: {
+          id: isReviewExists.booking.bus_Schedule.driverId,
+        },
+      });
 
+      if (driverData) {
+        let driverTotalRating =
+          driverData?.totalRatings - isReviewExists.rating;
+        driverTotalRating = driverTotalRating + payload.rating;
+        const driverRating = parseFloat(
+          (driverTotalRating / driverData?.totalReviewer).toFixed(2)
+        );
+        await transactionClient.driver.update({
+          where: {
+            id: isReviewExists.booking.bus_Schedule.driverId,
+          },
+          data: {
+            rating: driverRating,
+            totalRatings: driverTotalRating,
+          },
+        });
+      }
+    }
+    await prisma.review.update({
+      where: {
+        id,
+        userId: userId,
+      },
+      data: payload,
+      include: {
+        booking: {
+          include: {
+            bus_Schedule: true,
+          },
+        },
+      },
+    });
+  });
+  return {
+    message: 'Review update Successfully',
+  };
+};
 const deleteByIdFromDB = async (
   id: string,
   userId: string
-): Promise<Review> => {
-  const isReviewExists = await prisma.review.findUnique({
+): Promise<{
+  message: string;
+}> => {
+  const isReviewExists = await prisma.review.findFirst({
     where: {
-      id,
+      id: id,
       userId: userId,
     },
     include: {
-      booking: true,
+      booking: {
+        include: {
+          bus_Schedule: true,
+        },
+      },
     },
   });
+
   if (!isReviewExists) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Review is not found');
   }
 
-  const result = await prisma.review.delete({
-    where: {
-      id,
-      userId: userId,
-    },
-    include: {
-      booking: true,
-    },
+  await prisma.$transaction(async transactionClient => {
+    const driverData = await transactionClient.driver.findUnique({
+      where: {
+        id: isReviewExists.booking.bus_Schedule.driverId,
+      },
+    });
+
+    if (driverData) {
+      const driverTotalRating =
+        driverData?.totalRatings - isReviewExists.rating;
+      const totalReviewer = driverData?.totalReviewer - 1;
+      const driverRating = parseFloat(
+        (driverTotalRating / totalReviewer).toFixed(2)
+      );
+      await transactionClient.driver.update({
+        where: {
+          id: isReviewExists.booking.bus_Schedule.driverId,
+        },
+        data: {
+          rating: driverRating,
+          totalRatings: driverTotalRating,
+          totalReviewer: totalReviewer,
+        },
+      });
+    }
+
+    await prisma.review.delete({
+      where: {
+        id,
+        userId: userId,
+      },
+      include: {
+        booking: {
+          include: {
+            bus_Schedule: true,
+          },
+        },
+      },
+    });
   });
-  return result;
+  return {
+    message: 'Review Deleted Successfully',
+  };
 };
+
 export const ReviewService = {
   insertIntoDB,
   getByIdFromDB,

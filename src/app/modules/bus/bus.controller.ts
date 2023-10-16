@@ -50,7 +50,7 @@ const updateOneInDB = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-const deleteByIdFromDB = catchAsync(async (req: Request, res: Response) => {
+/* const deleteByIdFromDB = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const result = await BusService.deleteByIdFromDB(id);
   sendResponse(res, {
@@ -60,11 +60,11 @@ const deleteByIdFromDB = catchAsync(async (req: Request, res: Response) => {
     data: result,
   });
 });
-
+ */
 export const BusController = {
   insertIntoDB,
   getByIdFromDB,
   updateOneInDB,
-  deleteByIdFromDB,
+  // deleteByIdFromDB,
   getAllFromDB,
 };
