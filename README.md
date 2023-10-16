@@ -1,3 +1,7 @@
+## Root Api
+
+https://travel-ageny-backend.vercel.app/api/v1/
+
 ### User Authentication:
 
 - /auth/signUp (POST) //Sign up
