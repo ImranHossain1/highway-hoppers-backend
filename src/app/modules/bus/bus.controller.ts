@@ -11,7 +11,7 @@ const insertIntoDB = catchAsync(async (req: Request, res: Response) => {
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: 'Bus created successfully',
+    message: 'Bus Schedule created successfully',
     data: result,
   });
 });
@@ -22,7 +22,7 @@ const getAllFromDB = catchAsync(async (req: Request, res: Response) => {
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: 'Buses fetched successfully',
+    message: 'Bus Schedules fetched successfully',
     meta: result.meta,
     data: result.data,
   });
@@ -34,7 +34,7 @@ const getByIdFromDB = catchAsync(async (req: Request, res: Response) => {
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: 'Bus Data fetched successfully',
+    message: 'Bus Schedule Data fetched successfully',
     data: result,
   });
 });
@@ -45,7 +45,7 @@ const updateOneInDB = catchAsync(async (req: Request, res: Response) => {
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: 'Bus updated successfully',
+    message: 'Bus Schedule updated successfully',
     data: result,
   });
 });

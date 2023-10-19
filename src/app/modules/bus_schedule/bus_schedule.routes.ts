@@ -13,21 +13,9 @@ router.post(
   auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
   BusController.insertIntoDB
 );
-router.get(
-  '/:id/availableSits',
-  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
-  BusController.getAvailableSits
-);
-router.get(
-  '/:id',
-  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
-  BusController.getByIdFromDB
-);
-router.get(
-  '/',
-  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
-  BusController.getAllFromDB
-);
+router.get('/availableSits/:id', BusController.getAvailableSits);
+router.get('/:id', BusController.getByIdFromDB);
+router.get('/', BusController.getAllFromDB);
 router.patch(
   '/:id/update-schedule',
   validateRequest(BusValidation.update),

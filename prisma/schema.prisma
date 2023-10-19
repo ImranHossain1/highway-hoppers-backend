@@ -46,6 +46,7 @@ enum PaymentStatus {
 }
 
 enum Gender {
+  OPTIONAL
   MALE
   FEMALE
 }
@@ -60,11 +61,11 @@ model User {
   name            String
   email           String   @unique
   password        String
-  DOB             String
-  gender          Gender
+  DOB             String   @default("mm/dd/yyy")
+  gender          Gender   @default(OPTIONAL)
   role            Role     @default(TRAVELLER)
-  contactNo       String
-  address         String
+  contactNo       String   @default("not given")
+  address         String   @default("not given")
   isAllFieldGiven Boolean  @default(false)
   profileImg      String   @default("https://t4.ftcdn.net/jpg/02/29/75/83/360_F_229758328_7x8jwCwjtBMmC6rgFzLFhZoEpLobB6L8.jpg")
   createdAt       DateTime @default(now())

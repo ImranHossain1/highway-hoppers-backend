@@ -28,6 +28,15 @@ const insertIntoDB = async (data: IBookingCreateData, authUserId: string) => {
       status: Bus_Schedule_Status.Arrived,
     },
   });
+  const isAuthUser = await prisma.user.findUnique({
+    where: {
+      email: authUserId,
+    },
+  });
+
+  if (!isAuthUser) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'User Not Exists');
+  }
   if (isScheduleAvailable) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Journey is already completed');
   }
@@ -72,11 +81,12 @@ const insertIntoDB = async (data: IBookingCreateData, authUserId: string) => {
       await asyncForEach(data.sits, async (bus_Sit: IBus_sits) => {
         const result = await prismaTransactionClient.booking.create({
           data: {
-            userId: authUserId, // Associate the booking with the authenticated user
+            userId: isAuthUser.id, // Associate the booking with the authenticated user
             busScheduleId: data.busScheduleId,
             bus_SitId: bus_Sit.bus_SitId,
           },
         });
+        console.log(result);
         const busScheduleId = data.busScheduleId;
         await prismaTransactionClient.bus_Schedule.update({
           where: {
@@ -95,9 +105,18 @@ const insertIntoDB = async (data: IBookingCreateData, authUserId: string) => {
   return bookingResult;
 };
 const completePendingBooking = async (authUserId: string) => {
+  const isAuthUser = await prisma.user.findUnique({
+    where: {
+      email: authUserId,
+    },
+  });
+
+  if (!isAuthUser) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'User Not Exists');
+  }
   const pendingBooking = await prisma.booking.findMany({
     where: {
-      userId: authUserId,
+      userId: isAuthUser.id,
       paymentStatus: PaymentStatus.Pending,
     },
   });
@@ -115,7 +134,7 @@ const completePendingBooking = async (authUserId: string) => {
           const result = await prismaTransactionClient.booking.update({
             where: {
               id: pendingBooking.id,
-              userId: authUserId,
+              userId: isAuthUser.id,
             },
             data: {
               bookingStatus: BookingStatus.Booked,
@@ -172,6 +191,15 @@ const completePendingBooking = async (authUserId: string) => {
   return bookingResult;
 };
 const cancelAllPendingBooking = async (authUserId: string) => {
+  /* const isAuthUser = await prisma.user.findUnique({
+    where: {
+      email: authUserId,
+    },
+  });
+
+  if (!isAuthUser) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'User Not Exists');
+  } */
   const pendingBookings = await prisma.booking.findMany({
     where: {
       userId: authUserId,
@@ -313,6 +341,10 @@ const getAllFromDB = async (
     where: whereConditions,
     skip,
     take: limit,
+    include: {
+      bus_Schedule: true,
+      Bus_Sit: true,
+    },
     orderBy:
       options.sortBy && options.sortOrder
         ? {

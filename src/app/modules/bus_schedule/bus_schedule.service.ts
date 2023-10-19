@@ -125,6 +125,9 @@ const getByIdFromDB = async (id: string): Promise<Bus_Schedule | null> => {
     where: {
       id,
     },
+    include: {
+      bus: true,
+    },
   });
   if (!result) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Journey Not Found');

@@ -9,19 +9,14 @@ const router = express.Router();
 
 router.post(
   '/signUp',
-  validateRequest(AuthValidation.createUserZodSchema),
+  //validateRequest(AuthValidation.createUserZodSchema),
   AuthController.createUser
 );
-
+router.post('/refresh-token', AuthController.refreshToken);
 router.post(
   '/signIn',
   validateRequest(AuthValidation.loginZodSchema),
   AuthController.loginUser
-);
-router.post(
-  '/socialSignIn',
-  //validateRequest(AuthValidation.loginZodSchema),
-  AuthController.socialLogin
 );
 
 router.patch(

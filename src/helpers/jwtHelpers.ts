@@ -9,7 +9,9 @@ const createToken = (
     expiresIn: expireTime,
   });
 };
-
+const decodeToken = (token: string): JwtPayload => {
+  return jwt.decode(token) as JwtPayload;
+};
 const verifyToken = (token: string, secret: Secret): JwtPayload => {
   return jwt.verify(token, secret) as JwtPayload;
 };
@@ -17,4 +19,5 @@ const verifyToken = (token: string, secret: Secret): JwtPayload => {
 export const jwtHelpers = {
   createToken,
   verifyToken,
+  decodeToken,
 };
