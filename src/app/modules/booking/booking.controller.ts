@@ -54,16 +54,18 @@ const cancelSinglePendingBooking = catchAsync(
     });
   }
 );
-const getAllPendingBooking = catchAsync(async (req: Request, res: Response) => {
-  const user = (req as any).user;
-  const result = await BookingService.getAllPendingBooking(user.userId);
-  sendResponse(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: 'Your Booking fetched successfully',
-    data: result,
-  });
-});
+const getUserPendingBooking = catchAsync(
+  async (req: Request, res: Response) => {
+    const user = (req as any).user;
+    const result = await BookingService.getUserPendingBooking(user.userId);
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'Your Booking fetched successfully',
+      data: result,
+    });
+  }
+);
 
 const getAllFromDb = catchAsync(async (req: Request, res: Response) => {
   const filters = pick(req.query, BookingFilterableFields);
@@ -94,7 +96,7 @@ export const BookingController = {
   completePendingBooking,
   cancelAllPendingBooking,
   cancelSinglePendingBooking,
-  getAllPendingBooking,
+  getUserPendingBooking,
   getAllFromDb,
   getUserFromDb,
 };

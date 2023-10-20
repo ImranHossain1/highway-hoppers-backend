@@ -110,7 +110,6 @@ const completePendingBooking = async (authUserId: string) => {
       email: authUserId,
     },
   });
-  console.log(isAuthUser);
   if (!isAuthUser) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'User Not Exists');
   }
@@ -274,12 +273,20 @@ const cancelSinglePendingBooking = async (id: string) => {
   return bookingResult;
 };
 
-const getAllPendingBooking = async (
+const getUserPendingBooking = async (
   id: string
 ): Promise<IGenericResponseBooking<Booking[]>> => {
+  const isAuthUser = await prisma.user.findFirst({
+    where: {
+      email: id,
+    },
+  });
+  if (!isAuthUser) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'User Not Exists');
+  }
   const result = await prisma.booking.findMany({
     where: {
-      userId: id,
+      userId: isAuthUser.id,
       bookingStatus: BookingStatus.Pending,
     },
     include: {
@@ -297,6 +304,7 @@ const getAllPendingBooking = async (
     data: result,
   };
 };
+
 const getUserBooking = async (
   id: string
 ): Promise<IGenericResponseBooking<Booking[]>> => {
@@ -397,7 +405,7 @@ export const BookingService = {
   completePendingBooking,
   cancelAllPendingBooking,
   cancelSinglePendingBooking,
-  getAllPendingBooking,
   getAllFromDB,
   getUserBooking,
+  getUserPendingBooking,
 };

@@ -51,7 +51,7 @@ router.get(
     ENUM_USER_ROLE.DRIVER,
     ENUM_USER_ROLE.TRAVELLER
   ),
-  BookingController.getAllPendingBooking
+  BookingController.getUserPendingBooking
 );
 router.get(
   '/get-all-bookings',
