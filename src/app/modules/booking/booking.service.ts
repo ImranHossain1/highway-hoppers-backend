@@ -105,12 +105,12 @@ const insertIntoDB = async (data: IBookingCreateData, authUserId: string) => {
   return bookingResult;
 };
 const completePendingBooking = async (authUserId: string) => {
-  const isAuthUser = await prisma.user.findUnique({
+  const isAuthUser = await prisma.user.findFirst({
     where: {
       email: authUserId,
     },
   });
-
+  console.log(isAuthUser);
   if (!isAuthUser) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'User Not Exists');
   }
@@ -148,19 +148,15 @@ const completePendingBooking = async (authUserId: string) => {
           if (!result) {
             throw new ApiError(httpStatus.BAD_REQUEST, 'Transaction Failed');
           }
-          const busFare = result?.bus_Schedule?.busFare ?? 0;
+          // const busFare = result?.bus_Schedule?.busFare ?? 0;
 
-          const busSchedule =
-            await prismaTransactionClient.bus_Schedule.findUnique({
-              where: {
-                id: result.busScheduleId,
-              },
-              include: {
-                signle_Trip_Income: true,
-              },
-            });
+          /* await prismaTransactionClient.bus_Schedule.findUnique({
+            where: {
+              id: result.busScheduleId,
+            },
+          }); */
 
-          if (busSchedule) {
+          /* if (busSchedule) {
             const currentEarnings =
               busSchedule.signle_Trip_Income?.earnings || 0;
             const newEarnings = currentEarnings + busFare;
@@ -183,7 +179,7 @@ const completePendingBooking = async (authUserId: string) => {
                 },
               },
             });
-          }
+          } */
         });
       }
     }
@@ -301,6 +297,36 @@ const getAllPendingBooking = async (
     data: result,
   };
 };
+const getUserBooking = async (
+  id: string
+): Promise<IGenericResponseBooking<Booking[]>> => {
+  const isUser = await prisma.user.findFirst({
+    where: {
+      email: id,
+    },
+  });
+  if (!isUser) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'User Not found');
+  }
+  const result = await prisma.booking.findMany({
+    where: {
+      userId: isUser.id,
+    },
+    include: {
+      bus_Schedule: true,
+      Bus_Sit: true,
+    },
+  });
+  if (!result.length) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      "You don't have any pending bookings available."
+    );
+  }
+  return {
+    data: result,
+  };
+};
 
 const getAllFromDB = async (
   filters: IBookingInterfaceRequest,
@@ -365,64 +391,6 @@ const getAllFromDB = async (
     data: result,
   };
 };
-/* const getAllUsersBookingFromDB = async (
-  filters: IBookingInterfaceRequest,
-  options: IPaginationOptions
-): Promise<IGenericResponse<Booking[]>> => {
-  const { searchTerm, ...filterData } = filters;
-  const andConditions = [];
-  if (searchTerm) {
-    andConditions.push({
-      OR: BookingSearchableFields.map(field => ({
-        [field]: {
-          contains: searchTerm,
-          mode: 'insensitive',
-        },
-      })),
-    });
-  }
-
-  if (Object.keys(filterData).length > 0) {
-    andConditions.push({
-      AND: Object.keys(filterData).map(key => ({
-        [key]: {
-          equals: (filterData as any)[key],
-        },
-      })),
-    });
-  }
-  const whereConditions: Prisma.BookingWhereInput =
-    andConditions.length > 0
-      ? {
-          AND: andConditions,
-        }
-      : {};
-
-  const { page, limit, skip } = paginationHelpers.calculatePagination(options);
-  const result = await prisma.booking.findMany({
-    where: whereConditions,
-    skip,
-    take: limit,
-    orderBy:
-      options.sortBy && options.sortOrder
-        ? {
-            [options.sortBy]: options.sortOrder,
-          }
-        : {
-            createdAt: 'desc',
-          },
-  });
-
-  const total = await prisma.booking.count();
-  return {
-    meta: {
-      total,
-      page,
-      limit,
-    },
-    data: result,
-  };
-}; */
 
 export const BookingService = {
   insertIntoDB,
@@ -431,4 +399,5 @@ export const BookingService = {
   cancelSinglePendingBooking,
   getAllPendingBooking,
   getAllFromDB,
+  getUserBooking,
 };

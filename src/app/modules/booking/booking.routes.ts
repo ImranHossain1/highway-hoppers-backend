@@ -44,7 +44,7 @@ router.delete(
   BookingController.cancelSinglePendingBooking
 );
 router.get(
-  '/get-all-Pending-Booking',
+  '/get-user-Pending-Booking',
   auth(
     ENUM_USER_ROLE.SUPER_ADMIN,
     ENUM_USER_ROLE.ADMIN,

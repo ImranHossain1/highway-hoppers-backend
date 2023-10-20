@@ -5,7 +5,7 @@ import sendResponse from '../../../shared/sendResponse';
 import { UserProfileService } from './profile.service';
 
 const getUsersProfile = catchAsync(async (req: Request, res: Response) => {
-  const id = req.user?.userId;
+  const id = req.user?.email;
   const result = await UserProfileService.getUserProfile(id);
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -15,7 +15,7 @@ const getUsersProfile = catchAsync(async (req: Request, res: Response) => {
   });
 });
 const updateOneInDB = catchAsync(async (req: Request, res: Response) => {
-  const id = req.user?.userId;
+  const id = req.user?.email;
   const result = await UserProfileService.updateUserProfile(id, req.body);
   sendResponse(res, {
     statusCode: httpStatus.OK,

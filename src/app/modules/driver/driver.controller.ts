@@ -36,9 +36,19 @@ const updateOneInDB = catchAsync(async (req: Request, res: Response) => {
     data: result,
   });
 });
+const getAllFromDB = catchAsync(async (req: Request, res: Response) => {
+  const result = await DriverService.getAllFromDB();
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Driver updated successfully',
+    data: result,
+  });
+});
 
 export const DriverController = {
   insertIntoDB,
   getByIdFromDB,
   updateOneInDB,
+  getAllFromDB,
 };

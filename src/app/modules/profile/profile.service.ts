@@ -7,7 +7,7 @@ import { IMyProfile } from './profile.interface';
 const getUserProfile = async (userId: string): Promise<IMyProfile | null> => {
   const result = await prisma.user.findUnique({
     where: {
-      id: userId,
+      email: userId,
     },
     include: {
       driver: true,
@@ -26,7 +26,7 @@ const updateUserProfile = async (
 ): Promise<IMyProfile | null> => {
   const result = await prisma.user.update({
     where: {
-      id: userId,
+      email: userId,
     },
     data: payload,
   });

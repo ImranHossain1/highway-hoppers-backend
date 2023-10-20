@@ -20,5 +20,6 @@ router.patch(
   DriverController.updateOneInDB
 );
 router.get('/:id', DriverController.getByIdFromDB);
+router.get('/', DriverController.getAllFromDB);
 
 export const DriverRoutes = router;

@@ -65,9 +65,23 @@ const updateOneInDB = async (
   });
   return result;
 };
+const getAllFromDB = async (): Promise<Driver[]> => {
+  const isDriverExists = await prisma.driver.findMany({
+    include: {
+      user: true,
+    },
+  });
+
+  if (!isDriverExists) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Driver is not Exists');
+  }
+
+  return isDriverExists;
+};
 
 export const DriverService = {
   insertIntoDB,
   updateOneInDB,
   getDriverFromDb,
+  getAllFromDB,
 };

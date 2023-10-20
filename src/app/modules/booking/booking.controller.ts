@@ -21,7 +21,7 @@ const completePendingBooking = catchAsync(
   async (req: Request, res: Response) => {
     const user = (req as any).user;
 
-    const result = await BookingService.completePendingBooking(user.userId);
+    const result = await BookingService.completePendingBooking(user.email);
     sendResponse(res, {
       statusCode: httpStatus.OK,
       success: true,
@@ -78,17 +78,13 @@ const getAllFromDb = catchAsync(async (req: Request, res: Response) => {
   });
 });
 const getUserFromDb = catchAsync(async (req: Request, res: Response) => {
-  const filters = pick(req.query, BookingFilterableFields);
-  const options = pick(req.query, ['limit', 'page', 'sortBy', 'sortOrder']);
   const user = (req as any).user;
-  filters['userId'] = user.userId;
-  console.log(filters);
-  const result = await BookingService.getAllFromDB(filters, options);
+
+  const result = await BookingService.getUserBooking(user.email);
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
     message: 'All Booking Retrieved!',
-    meta: result.meta,
     data: result.data,
   });
 });
