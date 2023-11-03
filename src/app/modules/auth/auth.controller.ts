@@ -44,7 +44,6 @@ const loginUser = catchAsync(async (req: Request, res: Response) => {
     httpOnly: true,
   };
   res.cookie('refreshToken', refreshToken, cookieOptions);
-  console.log(result);
   sendResponse<ILoginUserResponse>(res, {
     statusCode: httpStatus.OK,
     success: true,

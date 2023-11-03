@@ -9,7 +9,7 @@ const router = express.Router();
 
 router.post(
   '/signUp',
-  //validateRequest(AuthValidation.createUserZodSchema),
+  validateRequest(AuthValidation.createUserZodSchema),
   AuthController.createUser
 );
 router.post('/refresh-token', AuthController.refreshToken);

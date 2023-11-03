@@ -24,7 +24,7 @@ const getAllFromDB = catchAsync(async (req: Request, res: Response) => {
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: 'OfferedCourseSections fetched successfully',
+    message: 'Bus Schedule fetched successfully',
     meta: result.meta,
     data: result.data,
   });
@@ -93,7 +93,7 @@ const deleteByIdFromDB = catchAsync(async (req: Request, res: Response) => {
     data: result,
   });
 });
-export const BusController = {
+export const BusScheduleController = {
   insertIntoDB,
   getAllFromDB,
   getByIdFromDB,

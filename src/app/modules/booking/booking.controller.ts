@@ -57,7 +57,7 @@ const cancelSinglePendingBooking = catchAsync(
 const getUserPendingBooking = catchAsync(
   async (req: Request, res: Response) => {
     const user = (req as any).user;
-    const result = await BookingService.getUserPendingBooking(user.userId);
+    const result = await BookingService.getUserPendingBooking(user.email);
     sendResponse(res, {
       statusCode: httpStatus.OK,
       success: true,
