@@ -66,7 +66,17 @@ router.get(
     ENUM_USER_ROLE.DRIVER,
     ENUM_USER_ROLE.TRAVELLER
   ),
-  BookingController.getUserFromDb
+  BookingController.getUserConfirmedBooking
+);
+router.get(
+  '/get-user-completed-bookings',
+  auth(
+    ENUM_USER_ROLE.SUPER_ADMIN,
+    ENUM_USER_ROLE.ADMIN,
+    ENUM_USER_ROLE.DRIVER,
+    ENUM_USER_ROLE.TRAVELLER
+  ),
+  BookingController.getUserCompletedBooking
 );
 
 export const BookingRoutes = router;

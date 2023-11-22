@@ -13,7 +13,7 @@ router.post(
   auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
   BusScheduleController.insertIntoDB
 );
-router.get('/availableSits/:id', BusScheduleController.getAvailableSits);
+router.get('/:id/availableSits', BusScheduleController.getAvailableSits);
 router.get('/:id', BusScheduleController.getByIdFromDB);
 router.get('/', BusScheduleController.getAllFromDB);
 router.patch(

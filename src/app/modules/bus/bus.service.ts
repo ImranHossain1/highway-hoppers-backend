@@ -107,6 +107,9 @@ const getByIdFromDB = async (id: string): Promise<Bus | null> => {
     where: {
       id,
     },
+    include: {
+      bus_Sits: true,
+    },
   });
   return result;
 };

@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BusController = void 0;
+exports.BusScheduleController = void 0;
 const http_status_1 = __importDefault(require("http-status"));
 const catchAsync_1 = __importDefault(require("../../../shared/catchAsync"));
 const sendResponse_1 = __importDefault(require("../../../shared/sendResponse"));
@@ -35,7 +35,7 @@ const getAllFromDB = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, v
     (0, sendResponse_1.default)(res, {
         statusCode: http_status_1.default.OK,
         success: true,
-        message: 'OfferedCourseSections fetched successfully',
+        message: 'Bus Schedule fetched successfully',
         meta: result.meta,
         data: result.data,
     });
@@ -100,7 +100,7 @@ const deleteByIdFromDB = (0, catchAsync_1.default)((req, res) => __awaiter(void 
         data: result,
     });
 }));
-exports.BusController = {
+exports.BusScheduleController = {
     insertIntoDB,
     getAllFromDB,
     getByIdFromDB,

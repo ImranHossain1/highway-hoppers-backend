@@ -127,6 +127,11 @@ const getByIdFromDB = async (id: string): Promise<Bus_Schedule | null> => {
     },
     include: {
       bus: true,
+      driver: {
+        include: {
+          user: true,
+        },
+      },
     },
   });
   if (!result) {

@@ -120,6 +120,11 @@ const getByIdFromDB = (id) => __awaiter(void 0, void 0, void 0, function* () {
         },
         include: {
             bus: true,
+            driver: {
+                include: {
+                    user: true,
+                },
+            },
         },
     });
     if (!result) {

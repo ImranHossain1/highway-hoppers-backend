@@ -117,6 +117,9 @@ const getByIdFromDB = (id) => __awaiter(void 0, void 0, void 0, function* () {
         where: {
             id,
         },
+        include: {
+            bus_Sits: true,
+        },
     });
     return result;
 });

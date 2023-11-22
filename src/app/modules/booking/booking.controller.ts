@@ -79,10 +79,21 @@ const getAllFromDb = catchAsync(async (req: Request, res: Response) => {
     data: result.data,
   });
 });
-const getUserFromDb = catchAsync(async (req: Request, res: Response) => {
+const getUserConfirmedBooking = catchAsync(async (req: Request, res: Response) => {
   const user = (req as any).user;
 
-  const result = await BookingService.getUserBooking(user.email);
+  const result = await BookingService.getUserConfirmedBooking(user.email);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'All Booking Retrieved!',
+    data: result.data,
+  });
+});
+const getUserCompletedBooking = catchAsync(async (req: Request, res: Response) => {
+  const user = (req as any).user;
+
+  const result = await BookingService.getUserCompletedBooking(user.email);
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
@@ -98,5 +109,6 @@ export const BookingController = {
   cancelSinglePendingBooking,
   getUserPendingBooking,
   getAllFromDb,
-  getUserFromDb,
+  getUserConfirmedBooking,
+  getUserCompletedBooking
 };

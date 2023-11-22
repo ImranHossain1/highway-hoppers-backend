@@ -1,5 +1,5 @@
 {
-  "name": "university-management-core-service",
+  "name": "highway-hoppers-backend",
   "version": "1.0.0",
   "description": "",
   "main": "src/server.ts",
@@ -14,7 +14,7 @@
     "postinstall": "prisma generate",
     "build": "tsc"
   },
-  "author": "Programming Hero",
+  "author": "Md Imran Hossain",
   "license": "ISC",
   "lint-staged": {
     "src/**/*.ts": "yarn lint-prettier"

@@ -11,11 +11,11 @@ const validateRequest_1 = __importDefault(require("../../middlewares/validateReq
 const bus_schedule_controller_1 = require("./bus_schedule.controller");
 const bus_schedule_validations_1 = require("./bus_schedule.validations");
 const router = express_1.default.Router();
-router.post('/', (0, validateRequest_1.default)(bus_schedule_validations_1.BusValidation.create), (0, auth_1.default)(user_1.ENUM_USER_ROLE.SUPER_ADMIN, user_1.ENUM_USER_ROLE.ADMIN), bus_schedule_controller_1.BusController.insertIntoDB);
-router.get('/availableSits/:id', bus_schedule_controller_1.BusController.getAvailableSits);
-router.get('/:id', bus_schedule_controller_1.BusController.getByIdFromDB);
-router.get('/', bus_schedule_controller_1.BusController.getAllFromDB);
-router.patch('/:id/update-schedule', (0, validateRequest_1.default)(bus_schedule_validations_1.BusValidation.update), (0, auth_1.default)(user_1.ENUM_USER_ROLE.SUPER_ADMIN, user_1.ENUM_USER_ROLE.ADMIN), bus_schedule_controller_1.BusController.updateOneInDB);
-router.patch('/:id/update-status', (0, validateRequest_1.default)(bus_schedule_validations_1.BusValidation.updateStatus), (0, auth_1.default)(user_1.ENUM_USER_ROLE.SUPER_ADMIN, user_1.ENUM_USER_ROLE.ADMIN), bus_schedule_controller_1.BusController.updateScheduleStatus);
-router.delete('/:id/delete-schedule', (0, auth_1.default)(user_1.ENUM_USER_ROLE.SUPER_ADMIN, user_1.ENUM_USER_ROLE.ADMIN), bus_schedule_controller_1.BusController.deleteByIdFromDB);
+router.post('/', (0, validateRequest_1.default)(bus_schedule_validations_1.BusValidation.create), (0, auth_1.default)(user_1.ENUM_USER_ROLE.SUPER_ADMIN, user_1.ENUM_USER_ROLE.ADMIN), bus_schedule_controller_1.BusScheduleController.insertIntoDB);
+router.get('/:id/availableSits', bus_schedule_controller_1.BusScheduleController.getAvailableSits);
+router.get('/:id', bus_schedule_controller_1.BusScheduleController.getByIdFromDB);
+router.get('/', bus_schedule_controller_1.BusScheduleController.getAllFromDB);
+router.patch('/:id/update-schedule', (0, validateRequest_1.default)(bus_schedule_validations_1.BusValidation.update), (0, auth_1.default)(user_1.ENUM_USER_ROLE.SUPER_ADMIN, user_1.ENUM_USER_ROLE.ADMIN), bus_schedule_controller_1.BusScheduleController.updateOneInDB);
+router.patch('/:id/update-status', (0, validateRequest_1.default)(bus_schedule_validations_1.BusValidation.updateStatus), (0, auth_1.default)(user_1.ENUM_USER_ROLE.SUPER_ADMIN, user_1.ENUM_USER_ROLE.ADMIN), bus_schedule_controller_1.BusScheduleController.updateScheduleStatus);
+router.delete('/:id/delete-schedule', (0, auth_1.default)(user_1.ENUM_USER_ROLE.SUPER_ADMIN, user_1.ENUM_USER_ROLE.ADMIN), bus_schedule_controller_1.BusScheduleController.deleteByIdFromDB);
 exports.BusScheduleRoutes = router;

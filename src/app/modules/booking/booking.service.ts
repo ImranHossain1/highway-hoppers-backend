@@ -305,7 +305,7 @@ const getUserPendingBooking = async (
   };
 };
 
-const getUserBooking = async (
+const getUserConfirmedBooking = async (
   id: string
 ): Promise<IGenericResponseBooking<Booking[]>> => {
   const isUser = await prisma.user.findFirst({
@@ -319,16 +319,50 @@ const getUserBooking = async (
   const result = await prisma.booking.findMany({
     where: {
       userId: isUser.id,
+      bookingStatus: BookingStatus.Booked,
     },
     include: {
       bus_Schedule: true,
       Bus_Sit: true,
     },
   });
+
   if (!result.length) {
     throw new ApiError(
       httpStatus.BAD_REQUEST,
-      "You don't have any pending bookings available."
+      "You haven'y confirm any bookings yet."
+    );
+  }
+  return {
+    data: result,
+  };
+};
+const getUserCompletedBooking = async (
+  id: string
+): Promise<IGenericResponseBooking<Booking[]>> => {
+  const isUser = await prisma.user.findFirst({
+    where: {
+      email: id,
+    },
+  });
+  if (!isUser) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'User Not found');
+  }
+  const result = await prisma.booking.findMany({
+    where: {
+      userId: isUser.id,
+      bookingStatus: BookingStatus.Completed,
+    },
+    include: {
+      bus_Schedule: true,
+      Bus_Sit: true,
+    },
+  });
+
+  if (!result.length) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      'You do not have any completed Journey.'
     );
   }
   return {
@@ -406,6 +440,7 @@ export const BookingService = {
   cancelAllPendingBooking,
   cancelSinglePendingBooking,
   getAllFromDB,
-  getUserBooking,
+  getUserConfirmedBooking,
   getUserPendingBooking,
+  getUserCompletedBooking,
 };
