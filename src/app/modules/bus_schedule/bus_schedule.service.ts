@@ -104,7 +104,11 @@ const getAllFromDB = async (
           },
     include: {
       bus: true,
-      driver: true,
+      driver: {
+        include: {
+          user: true,
+        },
+      },
     },
   });
   const total = await prisma.bus_Schedule.count({

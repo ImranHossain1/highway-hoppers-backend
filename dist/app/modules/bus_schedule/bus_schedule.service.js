@@ -98,7 +98,11 @@ const getAllFromDB = (filters, options) => __awaiter(void 0, void 0, void 0, fun
             },
         include: {
             bus: true,
-            driver: true,
+            driver: {
+                include: {
+                    user: true,
+                },
+            },
         },
     });
     const total = yield prisma_1.prisma.bus_Schedule.count({

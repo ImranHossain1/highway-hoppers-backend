@@ -82,9 +82,30 @@ const getAllFromDb = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, v
         data: result.data,
     });
 }));
-const getUserFromDb = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const getAllPendingBookings = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const options = (0, pick_1.default)(req.query, ['limit', 'page', 'sortBy', 'sortOrder']);
+    const result = yield booking_service_1.BookingService.getAllPendingBookings(options);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: 'All Booking Retrieved!',
+        meta: result.meta,
+        data: result.data,
+    });
+}));
+const getUserConfirmedBooking = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const user = req.user;
-    const result = yield booking_service_1.BookingService.getUserBooking(user.email);
+    const result = yield booking_service_1.BookingService.getUserConfirmedBooking(user.email);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: 'All Booking Retrieved!',
+        data: result.data,
+    });
+}));
+const getUserCompletedBooking = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = req.user;
+    const result = yield booking_service_1.BookingService.getUserCompletedBooking(user.email);
     (0, sendResponse_1.default)(res, {
         statusCode: http_status_1.default.OK,
         success: true,
@@ -99,5 +120,7 @@ exports.BookingController = {
     cancelSinglePendingBooking,
     getUserPendingBooking,
     getAllFromDb,
-    getUserFromDb,
+    getUserConfirmedBooking,
+    getUserCompletedBooking,
+    getAllPendingBookings,
 };

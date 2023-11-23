@@ -28,6 +28,16 @@ const getUsersProfile = (0, catchAsync_1.default)((req, res) => __awaiter(void 0
         data: result,
     });
 }));
+const getSingleUserProfile = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const id = req.params.id;
+    const result = yield profile_service_1.UserProfileService.getSingleUserProfile(id);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: 'Profile retrieved in successfully!',
+        data: result,
+    });
+}));
 const updateOneInDB = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _b;
     const id = (_b = req.user) === null || _b === void 0 ? void 0 : _b.email;
@@ -42,4 +52,5 @@ const updateOneInDB = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, 
 exports.UserProfileController = {
     getUsersProfile,
     updateOneInDB,
+    getSingleUserProfile
 };

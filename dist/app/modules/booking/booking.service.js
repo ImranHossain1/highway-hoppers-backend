@@ -8,17 +8,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __rest = (this && this.__rest) || function (s, e) {
-    var t = {};
-    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
-        t[p] = s[p];
-    if (s != null && typeof Object.getOwnPropertySymbols === "function")
-        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
-            if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
-                t[p[i]] = s[p[i]];
-        }
-    return t;
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -30,7 +19,6 @@ const ApiError_1 = __importDefault(require("../../../errors/ApiError"));
 const paginationHelper_1 = require("../../../helpers/paginationHelper");
 const prisma_1 = require("../../../shared/prisma");
 const utils_1 = require("../../../shared/utils");
-const booking_constants_1 = require("./booking.constants");
 const insertIntoDB = (data, authUserId) => __awaiter(void 0, void 0, void 0, function* () {
     const isScheduleAvailable = yield prisma_1.prisma.bus_Schedule.findUnique({
         where: {
@@ -275,7 +263,7 @@ const getUserPendingBooking = (id) => __awaiter(void 0, void 0, void 0, function
         data: result,
     };
 });
-const getUserBooking = (id) => __awaiter(void 0, void 0, void 0, function* () {
+const getUserConfirmedBooking = (id) => __awaiter(void 0, void 0, void 0, function* () {
     const isUser = yield prisma_1.prisma.user.findFirst({
         where: {
             email: id,
@@ -287,6 +275,7 @@ const getUserBooking = (id) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield prisma_1.prisma.booking.findMany({
         where: {
             userId: isUser.id,
+            bookingStatus: client_1.BookingStatus.Booked,
         },
         include: {
             bus_Schedule: true,
@@ -294,47 +283,102 @@ const getUserBooking = (id) => __awaiter(void 0, void 0, void 0, function* () {
         },
     });
     if (!result.length) {
-        throw new ApiError_1.default(http_status_1.default.BAD_REQUEST, "You don't have any pending bookings available.");
+        throw new ApiError_1.default(http_status_1.default.BAD_REQUEST, "You haven'y confirm any bookings yet.");
+    }
+    return {
+        data: result,
+    };
+});
+const getUserCompletedBooking = (id) => __awaiter(void 0, void 0, void 0, function* () {
+    const isUser = yield prisma_1.prisma.user.findFirst({
+        where: {
+            email: id,
+        },
+    });
+    if (!isUser) {
+        throw new ApiError_1.default(http_status_1.default.BAD_REQUEST, 'User Not found');
+    }
+    const result = yield prisma_1.prisma.booking.findMany({
+        where: {
+            userId: isUser.id,
+            bookingStatus: client_1.BookingStatus.Completed,
+        },
+        include: {
+            bus_Schedule: true,
+            Bus_Sit: true,
+        },
+    });
+    if (!result.length) {
+        throw new ApiError_1.default(http_status_1.default.BAD_REQUEST, 'You do not have any completed Journey.');
     }
     return {
         data: result,
     };
 });
 const getAllFromDB = (filters, options) => __awaiter(void 0, void 0, void 0, function* () {
-    const { searchTerm } = filters, filterData = __rest(filters, ["searchTerm"]);
-    const andConditions = [];
-    if (searchTerm) {
-        andConditions.push({
-            OR: booking_constants_1.BookingSearchableFields.map(field => ({
-                [field]: {
-                    contains: searchTerm,
-                    mode: 'insensitive',
-                },
-            })),
-        });
-    }
-    if (Object.keys(filterData).length > 0) {
-        andConditions.push({
-            AND: Object.keys(filterData).map(key => ({
-                [key]: {
-                    equals: filterData[key],
-                },
-            })),
-        });
-    }
-    const whereConditions = andConditions.length > 0
-        ? {
-            AND: andConditions,
-        }
-        : {};
     const { page, limit, skip } = paginationHelper_1.paginationHelpers.calculatePagination(options);
     const result = yield prisma_1.prisma.booking.findMany({
-        where: whereConditions,
         skip,
         take: limit,
         include: {
-            bus_Schedule: true,
-            Bus_Sit: true,
+            user: true,
+            bus_Schedule: {
+                include: {
+                    driver: {
+                        include: {
+                            user: true,
+                        },
+                    },
+                },
+            },
+            Bus_Sit: {
+                include: {
+                    bus: true,
+                },
+            },
+        },
+        orderBy: options.sortBy && options.sortOrder
+            ? {
+                [options.sortBy]: options.sortOrder,
+            }
+            : {
+                createdAt: 'desc',
+            },
+    });
+    const total = yield prisma_1.prisma.booking.count();
+    return {
+        meta: {
+            total,
+            page,
+            limit,
+        },
+        data: result,
+    };
+});
+const getAllPendingBookings = (options) => __awaiter(void 0, void 0, void 0, function* () {
+    const { page, limit, skip } = paginationHelper_1.paginationHelpers.calculatePagination(options);
+    const result = yield prisma_1.prisma.booking.findMany({
+        where: {
+            bookingStatus: client_1.BookingStatus.Pending,
+        },
+        skip,
+        take: limit,
+        include: {
+            user: true,
+            bus_Schedule: {
+                include: {
+                    driver: {
+                        include: {
+                            user: true,
+                        },
+                    },
+                },
+            },
+            Bus_Sit: {
+                include: {
+                    bus: true,
+                },
+            },
         },
         orderBy: options.sortBy && options.sortOrder
             ? {
@@ -360,6 +404,8 @@ exports.BookingService = {
     cancelAllPendingBooking,
     cancelSinglePendingBooking,
     getAllFromDB,
-    getUserBooking,
+    getUserConfirmedBooking,
     getUserPendingBooking,
+    getUserCompletedBooking,
+    getAllPendingBookings,
 };

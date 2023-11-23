@@ -15,6 +15,11 @@ router.get(
   ),
   UserProfileController.getUsersProfile
 );
+router.get(
+  '/:id/user-profile',
+  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
+  UserProfileController.getSingleUserProfile
+);
 router.patch(
   '/update-profile',
   auth(

@@ -30,6 +30,20 @@ const getUserProfile = (userId) => __awaiter(void 0, void 0, void 0, function* (
     }
     return result;
 });
+const getSingleUserProfile = (userId) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield prisma_1.prisma.user.findUnique({
+        where: {
+            id: userId,
+        },
+        include: {
+            driver: true,
+        },
+    });
+    if (!result) {
+        throw new ApiError_1.default(http_status_1.default.BAD_REQUEST, 'User not Found');
+    }
+    return result;
+});
 const updateUserProfile = (userId, payload) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield prisma_1.prisma.user.update({
         where: {
@@ -42,4 +56,5 @@ const updateUserProfile = (userId, payload) => __awaiter(void 0, void 0, void 0,
 exports.UserProfileService = {
     getUserProfile,
     updateUserProfile,
+    getSingleUserProfile,
 };

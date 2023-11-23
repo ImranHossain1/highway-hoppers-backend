@@ -14,6 +14,16 @@ const getUsersProfile = catchAsync(async (req: Request, res: Response) => {
     data: result,
   });
 });
+const getSingleUserProfile = catchAsync(async (req: Request, res: Response) => {
+  const id = req.params.id;
+  const result = await UserProfileService.getSingleUserProfile(id);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Profile retrieved in successfully!',
+    data: result,
+  });
+});
 const updateOneInDB = catchAsync(async (req: Request, res: Response) => {
   const id = req.user?.email;
   const result = await UserProfileService.updateUserProfile(id, req.body);
@@ -28,4 +38,5 @@ const updateOneInDB = catchAsync(async (req: Request, res: Response) => {
 export const UserProfileController = {
   getUsersProfile,
   updateOneInDB,
+  getSingleUserProfile
 };

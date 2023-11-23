@@ -59,6 +59,11 @@ router.get(
   BookingController.getAllFromDb
 );
 router.get(
+  '/get-all-pending-bookings',
+  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
+  BookingController.getAllPendingBookings
+);
+router.get(
   '/get-user-bookings',
   auth(
     ENUM_USER_ROLE.SUPER_ADMIN,

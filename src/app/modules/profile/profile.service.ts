@@ -20,6 +20,24 @@ const getUserProfile = async (userId: string): Promise<IMyProfile | null> => {
 
   return result;
 };
+const getSingleUserProfile = async (
+  userId: string
+): Promise<IMyProfile | null> => {
+  const result = await prisma.user.findUnique({
+    where: {
+      id: userId,
+    },
+    include: {
+      driver: true,
+    },
+  });
+
+  if (!result) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'User not Found');
+  }
+
+  return result;
+};
 const updateUserProfile = async (
   userId: string,
   payload: Partial<User>
@@ -36,4 +54,5 @@ const updateUserProfile = async (
 export const UserProfileService = {
   getUserProfile,
   updateUserProfile,
+  getSingleUserProfile,
 };

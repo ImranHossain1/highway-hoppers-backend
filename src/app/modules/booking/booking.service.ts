@@ -3,7 +3,6 @@ import {
   BookingStatus,
   Bus_Schedule_Status,
   PaymentStatus,
-  Prisma,
 } from '@prisma/client';
 import httpStatus from 'http-status';
 import ApiError from '../../../errors/ApiError';
@@ -15,7 +14,6 @@ import {
 import { IPaginationOptions } from '../../../interfaces/pagination';
 import { prisma } from '../../../shared/prisma';
 import { asyncForEach } from '../../../shared/utils';
-import { BookingSearchableFields } from './booking.constants';
 import {
   IBookingCreateData,
   IBookingInterfaceRequest,
@@ -374,44 +372,75 @@ const getAllFromDB = async (
   filters: IBookingInterfaceRequest,
   options: IPaginationOptions
 ): Promise<IGenericResponse<Booking[]>> => {
-  const { searchTerm, ...filterData } = filters;
-
-  const andConditions = [];
-  if (searchTerm) {
-    andConditions.push({
-      OR: BookingSearchableFields.map(field => ({
-        [field]: {
-          contains: searchTerm,
-          mode: 'insensitive',
-        },
-      })),
-    });
-  }
-
-  if (Object.keys(filterData).length > 0) {
-    andConditions.push({
-      AND: Object.keys(filterData).map(key => ({
-        [key]: {
-          equals: (filterData as any)[key],
-        },
-      })),
-    });
-  }
-  const whereConditions: Prisma.BookingWhereInput =
-    andConditions.length > 0
-      ? {
-          AND: andConditions,
-        }
-      : {};
-
   const { page, limit, skip } = paginationHelpers.calculatePagination(options);
+
   const result = await prisma.booking.findMany({
-    where: whereConditions,
     skip,
     take: limit,
     include: {
-      bus_Schedule: true,
-      Bus_Sit: true,
+      user: true,
+      bus_Schedule: {
+        include: {
+          driver: {
+            include: {
+              user: true,
+            },
+          },
+        },
+      },
+      Bus_Sit: {
+        include: {
+          bus: true,
+        },
+      },
+    },
+    orderBy:
+      options.sortBy && options.sortOrder
+        ? {
+            [options.sortBy]: options.sortOrder,
+          }
+        : {
+            createdAt: 'desc',
+          },
+  });
+
+  const total = await prisma.booking.count();
+  return {
+    meta: {
+      total,
+      page,
+      limit,
+    },
+    data: result,
+  };
+};
+const getAllPendingBookings = async (
+  options: IPaginationOptions
+): Promise<IGenericResponse<Booking[]>> => {
+  const { page, limit, skip } = paginationHelpers.calculatePagination(options);
+
+  const result = await prisma.booking.findMany({
+    where: {
+      bookingStatus: BookingStatus.Pending,
+    },
+    skip,
+    take: limit,
+    include: {
+      user: true,
+      bus_Schedule: {
+        include: {
+          driver: {
+            include: {
+              user: true,
+            },
+          },
+        },
+      },
+      Bus_Sit: {
+        include: {
+          bus: true,
+        },
+      },
     },
     orderBy:
       options.sortBy && options.sortOrder
@@ -443,4 +472,5 @@ export const BookingService = {
   getUserConfirmedBooking,
   getUserPendingBooking,
   getUserCompletedBooking,
+  getAllPendingBookings,
 };
