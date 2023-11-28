@@ -32,7 +32,6 @@ const auth_service_1 = require("./auth.service");
 const createUser = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const userData = __rest(req.body, []);
     const { email, password } = userData;
-    console.log(req.body);
     const result = yield auth_service_1.AuthService.createUser(userData);
     const loginData = {
         email,

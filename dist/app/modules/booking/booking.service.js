@@ -74,7 +74,6 @@ const insertIntoDB = (data, authUserId) => __awaiter(void 0, void 0, void 0, fun
                     bus_SitId: bus_Sit.bus_SitId,
                 },
             });
-            console.log(result);
             const busScheduleId = data.busScheduleId;
             yield prismaTransactionClient.bus_Schedule.update({
                 where: {
@@ -179,13 +178,11 @@ const cancelAllPendingBooking = (authUserId) => __awaiter(void 0, void 0, void 0
             bookingStatus: client_1.BookingStatus.Pending,
         },
     });
-    console.log(pendingBookings);
     if (pendingBookings.length === 0) {
         throw new ApiError_1.default(http_status_1.default.BAD_REQUEST, "You don't have any pending booking");
     }
     const bookingResult = yield prisma_1.prisma.$transaction((prismaTransactionClient) => __awaiter(void 0, void 0, void 0, function* () {
         yield (0, utils_1.asyncForEach)(pendingBookings, (pendingBooking) => __awaiter(void 0, void 0, void 0, function* () {
-            console.log(pendingBooking);
             const result = yield prismaTransactionClient.booking.delete({
                 where: {
                     id: pendingBooking.id,
@@ -304,8 +301,17 @@ const getUserCompletedBooking = (id) => __awaiter(void 0, void 0, void 0, functi
             bookingStatus: client_1.BookingStatus.Completed,
         },
         include: {
-            bus_Schedule: true,
+            bus_Schedule: {
+                include: {
+                    driver: {
+                        include: {
+                            user: true,
+                        },
+                    },
+                },
+            },
             Bus_Sit: true,
+            review: true,
         },
     });
     if (!result.length) {

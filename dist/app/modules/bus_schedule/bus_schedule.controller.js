@@ -50,6 +50,19 @@ const getByIdFromDB = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, 
         data: result,
     });
 }));
+const getByDriverId = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = req.user;
+    const filters = (0, pick_1.default)(req.query, bus_schedule_constants_1.busScheduleFilterableFields);
+    const options = (0, pick_1.default)(req.query, ['limit', 'page', 'sortBy', 'sortOrder']);
+    const result = yield bus_schedule_service_1.BusScheduleService.getByDriverId(user.email, filters, options);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: 'Bus Schedule fetched successfully',
+        meta: result.meta,
+        data: result.data,
+    });
+}));
 const getAvailableSits = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
     const result = yield bus_schedule_service_1.BusScheduleService.getAvailableSits(id);
@@ -82,7 +95,6 @@ const updateOneInDB = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, 
 }));
 const updateScheduleStatus = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
-    console.log(req.body);
     const result = yield bus_schedule_service_1.BusScheduleService.updateScheduleStatus(id, req.body);
     (0, sendResponse_1.default)(res, {
         statusCode: http_status_1.default.OK,
@@ -109,4 +121,5 @@ exports.BusScheduleController = {
     deleteByIdFromDB,
     updateScheduleStatus,
     getAvailableSits,
+    getByDriverId,
 };

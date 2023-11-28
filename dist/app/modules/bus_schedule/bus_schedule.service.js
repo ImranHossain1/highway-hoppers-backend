@@ -136,6 +136,89 @@ const getByIdFromDB = (id) => __awaiter(void 0, void 0, void 0, function* () {
     }
     return result;
 });
+const getByDriverId = (id, filters, options) => __awaiter(void 0, void 0, void 0, function* () {
+    const { limit, page, skip } = paginationHelper_1.paginationHelpers.calculatePagination(options);
+    const { searchTerm } = filters, filterData = __rest(filters, ["searchTerm"]);
+    const andConditions = [];
+    if (searchTerm) {
+        andConditions.push({
+            OR: bus_schedule_constants_1.busScheduleSearchableFields.map(field => ({
+                [field]: {
+                    contains: searchTerm,
+                    mode: 'insensitive',
+                },
+            })),
+        });
+    }
+    if (Object.keys(filterData).length > 0) {
+        andConditions.push({
+            AND: Object.keys(filterData).map(key => {
+                if (bus_schedule_constants_1.busScheduleRelationalFields.includes(key)) {
+                    return {
+                        [bus_schedule_constants_1.busScheduleRelationalFieldsMapper[key]]: {
+                            id: filterData[key],
+                        },
+                    };
+                }
+                else {
+                    return {
+                        [key]: {
+                            equals: filterData[key],
+                        },
+                    };
+                }
+            }),
+        });
+    }
+    const whereConditions = andConditions.length > 0 ? { AND: andConditions } : {};
+    const user = yield prisma_1.prisma.user.findUnique({
+        where: {
+            email: id,
+        },
+    });
+    if (!user) {
+        throw new ApiError_1.default(http_status_1.default.BAD_REQUEST, 'User Not Found');
+    }
+    whereConditions.driver = {
+        userId: user.id,
+    };
+    const result = yield prisma_1.prisma.bus_Schedule.findMany({
+        where: whereConditions,
+        skip,
+        take: limit,
+        orderBy: options.sortBy && options.sortOrder
+            ? { [options.sortBy]: options.sortOrder }
+            : {
+                createdAt: 'desc',
+            },
+        include: {
+            bus: true,
+            driver: {
+                include: {
+                    user: true,
+                },
+            },
+        },
+    });
+    if (!result) {
+        throw new ApiError_1.default(http_status_1.default.BAD_REQUEST, 'Journey Not Found');
+    }
+    const total = yield prisma_1.prisma.bus_Schedule.count({
+        where: {
+            driver: {
+                userId: user.id,
+            },
+        },
+    });
+    return {
+        meta: {
+            total,
+            page,
+            limit,
+        },
+        data: result,
+    };
+});
 const getAvailableSits = (id) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield prisma_1.prisma.bus_Schedule.findUnique({
         where: {
@@ -272,4 +355,5 @@ exports.BusScheduleService = {
     deleteByIdFromDB,
     updateScheduleStatus,
     getAvailableSits,
+    getByDriverId,
 };

@@ -50,7 +50,6 @@ const updateOneInDB = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, 
 }));
 const getAllFromDB = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const options = (0, pick_1.default)(req.query, ['limit', 'page', 'sortBy', 'sortOrder']);
-    console.log('options');
     const result = yield driver_service_1.DriverService.getAllFromDB(options);
     (0, sendResponse_1.default)(res, {
         statusCode: http_status_1.default.OK,

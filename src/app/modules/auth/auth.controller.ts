@@ -51,34 +51,16 @@ const loginUser = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-/* const socialLogin = catchAsync(async (req: Request, res: Response) => {
-  const result = await AuthService.socialLogin(req.body);
-  const { refreshToken, ...others } = result;
-  // set refresh token into cookie
-  const cookieOptions = {
-    secure: config.env === 'production',
-    httpOnly: true,
-  };
-  res.cookie('refreshToken', refreshToken, cookieOptions);
-
-  sendResponse<ILoginUserResponse>(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: 'User logged in Successfully',
-    data: others,
-  });
-}); */
-
 const refreshToken = catchAsync(async (req: Request, res: Response) => {
   const refreshToken = req.headers.authorization;
   const result = await AuthService.refreshToken(refreshToken!);
 
   //set refresh token into cookie
-  const cookieOptions = {
+  /*   const cookieOptions = {
     secure: config.env === 'production',
     httpOnly: true,
-  };
-  res.cookie('refreshToken', refreshToken, cookieOptions);
+  }; */
+  // res.cookie('refreshToken', refreshToken, cookieOptions);
 
   /* if ('refreshToken' in result) {
     delete result.refreshToken;
@@ -87,7 +69,7 @@ const refreshToken = catchAsync(async (req: Request, res: Response) => {
   sendResponse<IRefreshTokenResponse>(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: 'User logged in Successfully',
+    message: 'Refresh token Successfully',
     data: result,
   });
 });

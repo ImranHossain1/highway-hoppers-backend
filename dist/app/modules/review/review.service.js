@@ -8,6 +8,17 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __rest = (this && this.__rest) || function (s, e) {
+    var t = {};
+    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
+        t[p] = s[p];
+    if (s != null && typeof Object.getOwnPropertySymbols === "function")
+        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
+            if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
+                t[p[i]] = s[p[i]];
+        }
+    return t;
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -16,12 +27,22 @@ exports.ReviewService = void 0;
 const client_1 = require("@prisma/client");
 const http_status_1 = __importDefault(require("http-status"));
 const ApiError_1 = __importDefault(require("../../../errors/ApiError"));
+const paginationHelper_1 = require("../../../helpers/paginationHelper");
 const prisma_1 = require("../../../shared/prisma");
+const review_constants_1 = require("./review.constants");
 const insertIntoDB = (data, userId, bookingId) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = yield prisma_1.prisma.user.findUnique({
+        where: {
+            email: userId,
+        },
+    });
+    if (!user) {
+        throw new ApiError_1.default(http_status_1.default.BAD_REQUEST, 'User Not Found');
+    }
     const isBookingCompleted = yield prisma_1.prisma.booking.findFirst({
         where: {
             id: bookingId,
-            userId: userId,
+            userId: user.id,
         },
         include: {
             review: true,
@@ -33,13 +54,13 @@ const insertIntoDB = (data, userId, bookingId) => __awaiter(void 0, void 0, void
     if ((isBookingCompleted === null || isBookingCompleted === void 0 ? void 0 : isBookingCompleted.bookingStatus) !== client_1.BookingStatus.Completed) {
         throw new ApiError_1.default(http_status_1.default.BAD_REQUEST, 'Your Journey is not Completed yet');
     }
-    if (isBookingCompleted.review) {
+    if (isBookingCompleted.review !== null) {
         throw new ApiError_1.default(http_status_1.default.BAD_REQUEST, 'Review already completed');
     }
     yield prisma_1.prisma.$transaction((transactionClient) => __awaiter(void 0, void 0, void 0, function* () {
         const result = yield transactionClient.review.create({
             data: {
-                userId: userId,
+                userId: user.id,
                 bookingId: bookingId,
                 review: data.review,
                 rating: data.rating,
@@ -109,14 +130,49 @@ const getByIdFromDB = (id) => __awaiter(void 0, void 0, void 0, function* () {
     }
     return result;
 });
-const getAllReviewFromDB = () => __awaiter(void 0, void 0, void 0, function* () {
+const getAllReviewFromDB = (filters, options) => __awaiter(void 0, void 0, void 0, function* () {
+    const { limit, page, skip } = paginationHelper_1.paginationHelpers.calculatePagination(options);
+    const { searchTerm } = filters, filterData = __rest(filters, ["searchTerm"]);
+    const andConditions = [];
+    if (searchTerm) {
+        andConditions.push({
+            OR: review_constants_1.reviewSearchableFields.map(field => ({
+                [field]: {
+                    contains: searchTerm,
+                    mode: 'insensitive',
+                },
+            })),
+        });
+    }
+    if (Object.keys(filterData).length > 0) {
+        andConditions.push({
+            AND: Object.keys(filterData).map(key => ({
+                [key]: {
+                    equals: filterData[key],
+                },
+            })),
+        });
+    }
+    const whereConditions = andConditions.length > 0 ? { AND: andConditions } : {};
     const result = yield prisma_1.prisma.review.findMany({
+        where: whereConditions,
+        skip,
+        take: limit,
+        orderBy: options.sortBy && options.sortOrder
+            ? { [options.sortBy]: options.sortOrder }
+            : {
+                createdAt: 'desc',
+            },
         include: {
             booking: {
                 include: {
                     bus_Schedule: {
                         include: {
-                            driver: true,
+                            driver: {
+                                include: {
+                                    user: true,
+                                },
+                            },
                         },
                     },
                 },
@@ -124,16 +180,110 @@ const getAllReviewFromDB = () => __awaiter(void 0, void 0, void 0, function* () 
             user: true,
         },
     });
-    if (result.length === 0) {
-        throw new ApiError_1.default(http_status_1.default.BAD_REQUEST, 'No Review found');
+    if (!result) {
+        throw new ApiError_1.default(http_status_1.default.BAD_REQUEST, 'Journey Not Found');
     }
-    return result;
+    const total = yield prisma_1.prisma.review.count({});
+    return {
+        meta: {
+            total,
+            page,
+            limit,
+        },
+        data: result,
+    };
+});
+const getAllReviewForSingleDriverFromDB = (id, filters, options) => __awaiter(void 0, void 0, void 0, function* () {
+    const { limit, page, skip } = paginationHelper_1.paginationHelpers.calculatePagination(options);
+    const { searchTerm } = filters, filterData = __rest(filters, ["searchTerm"]);
+    const andConditions = [];
+    if (searchTerm) {
+        andConditions.push({
+            OR: review_constants_1.reviewSearchableFields.map(field => ({
+                [field]: {
+                    contains: searchTerm,
+                    mode: 'insensitive',
+                },
+            })),
+        });
+    }
+    if (Object.keys(filterData).length > 0) {
+        andConditions.push({
+            AND: Object.keys(filterData).map(key => ({
+                [key]: {
+                    equals: filterData[key],
+                },
+            })),
+        });
+    }
+    const whereConditions = andConditions.length > 0 ? { AND: andConditions } : {};
+    const user = yield prisma_1.prisma.user.findUnique({
+        where: {
+            email: id,
+        },
+    });
+    if (!user) {
+        throw new ApiError_1.default(http_status_1.default.BAD_REQUEST, 'User Not Found');
+    }
+    whereConditions.booking = {
+        bus_Schedule: {
+            driver: {
+                userId: user.id,
+            },
+        },
+    };
+    const result = yield prisma_1.prisma.review.findMany({
+        where: whereConditions,
+        skip,
+        take: limit,
+        orderBy: options.sortBy && options.sortOrder
+            ? { [options.sortBy]: options.sortOrder }
+            : {
+                createdAt: 'desc',
+            },
+        include: {
+            booking: {
+                include: {
+                    bus_Schedule: {
+                        include: {
+                            driver: {
+                                include: {
+                                    user: true,
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+            user: true,
+        },
+    });
+    if (!result) {
+        throw new ApiError_1.default(http_status_1.default.BAD_REQUEST, 'Journey Not Found');
+    }
+    const total = yield prisma_1.prisma.review.count({});
+    return {
+        meta: {
+            total,
+            page,
+            limit,
+        },
+        data: result,
+    };
 });
 const updateOneInDB = (id, userId, payload) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = yield prisma_1.prisma.user.findUnique({
+        where: {
+            email: userId,
+        },
+    });
+    if (!user) {
+        throw new ApiError_1.default(http_status_1.default.BAD_REQUEST, 'User Not Found');
+    }
     const isReviewExists = yield prisma_1.prisma.review.findFirst({
         where: {
             id: id,
-            userId: userId,
+            userId: user.id,
         },
         include: {
             booking: {
@@ -171,7 +321,7 @@ const updateOneInDB = (id, userId, payload) => __awaiter(void 0, void 0, void 0,
         yield prisma_1.prisma.review.update({
             where: {
                 id,
-                userId: userId,
+                userId: user.id,
             },
             data: payload,
             include: {
@@ -188,10 +338,18 @@ const updateOneInDB = (id, userId, payload) => __awaiter(void 0, void 0, void 0,
     };
 });
 const deleteByIdFromDB = (id, userId) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = yield prisma_1.prisma.user.findUnique({
+        where: {
+            email: userId,
+        },
+    });
+    if (!user) {
+        throw new ApiError_1.default(http_status_1.default.BAD_REQUEST, 'User Not Found');
+    }
     const isReviewExists = yield prisma_1.prisma.review.findFirst({
         where: {
             id: id,
-            userId: userId,
+            userId: user.id,
         },
         include: {
             booking: {
@@ -228,7 +386,7 @@ const deleteByIdFromDB = (id, userId) => __awaiter(void 0, void 0, void 0, funct
         yield prisma_1.prisma.review.delete({
             where: {
                 id,
-                userId: userId,
+                userId: user.id,
             },
             include: {
                 booking: {
@@ -249,4 +407,5 @@ exports.ReviewService = {
     updateOneInDB,
     deleteByIdFromDB,
     getAllReviewFromDB,
+    getAllReviewForSingleDriverFromDB,
 };
