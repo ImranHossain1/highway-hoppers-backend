@@ -82,6 +82,7 @@ const updateOneInDB = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, 
 }));
 const updateScheduleStatus = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
+    console.log(req.body);
     const result = yield bus_schedule_service_1.BusScheduleService.updateScheduleStatus(id, req.body);
     (0, sendResponse_1.default)(res, {
         statusCode: http_status_1.default.OK,

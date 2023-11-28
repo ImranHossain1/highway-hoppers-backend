@@ -13,8 +13,14 @@ router.post(
   auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
   BusScheduleController.insertIntoDB
 );
+router.get(
+  '/driverSchedule',
+  auth(ENUM_USER_ROLE.DRIVER),
+  BusScheduleController.getByDriverId
+);
 router.get('/:id/availableSits', BusScheduleController.getAvailableSits);
 router.get('/:id', BusScheduleController.getByIdFromDB);
+
 router.get('/', BusScheduleController.getAllFromDB);
 router.patch(
   '/:id/update-schedule',
@@ -25,7 +31,7 @@ router.patch(
 router.patch(
   '/:id/update-status',
   validateRequest(BusValidation.updateStatus),
-  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
+  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.DRIVER),
   BusScheduleController.updateScheduleStatus
 );
 router.delete(

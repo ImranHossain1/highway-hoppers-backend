@@ -1,12 +1,13 @@
 import { Request, Response } from 'express';
 import httpStatus from 'http-status';
 import catchAsync from '../../../shared/catchAsync';
+import pick from '../../../shared/pick';
 import sendResponse from '../../../shared/sendResponse';
 import { DriverService } from './driver.service';
 
 const insertIntoDB = catchAsync(async (req: Request, res: Response) => {
-  const userId = req.params.id;
-  const result = await DriverService.insertIntoDB(req.body, userId);
+  const { user, salary } = req.body;
+  const result = await DriverService.insertIntoDB(user, salary);
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
@@ -37,7 +38,8 @@ const updateOneInDB = catchAsync(async (req: Request, res: Response) => {
   });
 });
 const getAllFromDB = catchAsync(async (req: Request, res: Response) => {
-  const result = await DriverService.getAllFromDB();
+  const options = pick(req.query, ['limit', 'page', 'sortBy', 'sortOrder']);
+  const result = await DriverService.getAllFromDB(options);
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,

@@ -40,6 +40,24 @@ const getByIdFromDB = catchAsync(async (req: Request, res: Response) => {
     data: result,
   });
 });
+const getByDriverId = catchAsync(async (req: Request, res: Response) => {
+  const user = (req as any).user;
+  const filters = pick(req.query, busScheduleFilterableFields);
+
+  const options = pick(req.query, ['limit', 'page', 'sortBy', 'sortOrder']);
+  const result = await BusScheduleService.getByDriverId(
+    user.email,
+    filters,
+    options
+  );
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Bus Schedule fetched successfully',
+    meta: result.meta,
+    data: result.data,
+  });
+});
 const getAvailableSits = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const result = await BusScheduleService.getAvailableSits(id);
@@ -101,4 +119,5 @@ export const BusScheduleController = {
   deleteByIdFromDB,
   updateScheduleStatus,
   getAvailableSits,
+  getByDriverId,
 };

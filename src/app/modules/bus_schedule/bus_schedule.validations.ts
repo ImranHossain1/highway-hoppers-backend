@@ -46,46 +46,14 @@ const update = z.object({
   body: z.object({
     startTime: timeStringSchema.optional(),
     endTime: timeStringSchema.optional(),
-    startDate: z
-      .string({
-        required_error: 'Start Date is required',
-      })
-      .optional(),
-    endDate: z
-      .string({
-        required_error: 'End Date is required',
-      })
-      .optional(),
-    startingPoint: z
-      .string({
-        required_error: 'Start Time is required',
-      })
-      .optional(),
-    endPoint: z
-      .string({
-        required_error: 'Start Time is required',
-      })
-      .optional(),
-    dayOfWeek: z
-      .enum([...daysInWeek] as [string, ...string[]], {
-        required_error: 'Day of week is required',
-      })
-      .optional(),
-    busFare: z
-      .number({
-        required_error: 'Travel Fare is required',
-      })
-      .optional(),
-    busId: z
-      .string({
-        required_error: 'Start Time is required',
-      })
-      .optional(),
-    driverId: z
-      .string({
-        required_error: 'Driver is required',
-      })
-      .optional(),
+    startDate: z.string().optional(),
+    endDate: z.string().optional(),
+    startingPoint: z.string().optional(),
+    endPoint: z.string().optional(),
+    dayOfWeek: z.enum([...daysInWeek] as [string, ...string[]]).optional(),
+    busFare: z.number().optional(),
+    busId: z.string().optional(),
+    driverId: z.string().optional(),
   }),
 });
 const updateStatus = z.object({

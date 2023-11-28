@@ -15,11 +15,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.DriverController = void 0;
 const http_status_1 = __importDefault(require("http-status"));
 const catchAsync_1 = __importDefault(require("../../../shared/catchAsync"));
+const pick_1 = __importDefault(require("../../../shared/pick"));
 const sendResponse_1 = __importDefault(require("../../../shared/sendResponse"));
 const driver_service_1 = require("./driver.service");
 const insertIntoDB = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const userId = req.params.id;
-    const result = yield driver_service_1.DriverService.insertIntoDB(req.body, userId);
+    const { user, salary } = req.body;
+    const result = yield driver_service_1.DriverService.insertIntoDB(user, salary);
     (0, sendResponse_1.default)(res, {
         statusCode: http_status_1.default.OK,
         success: true,
@@ -48,7 +49,9 @@ const updateOneInDB = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, 
     });
 }));
 const getAllFromDB = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield driver_service_1.DriverService.getAllFromDB();
+    const options = (0, pick_1.default)(req.query, ['limit', 'page', 'sortBy', 'sortOrder']);
+    console.log('options');
+    const result = yield driver_service_1.DriverService.getAllFromDB(options);
     (0, sendResponse_1.default)(res, {
         statusCode: http_status_1.default.OK,
         success: true,

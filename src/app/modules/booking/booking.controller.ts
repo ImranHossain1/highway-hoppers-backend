@@ -9,7 +9,7 @@ import { BookingService } from './booking.service';
 const insertIntoDB = catchAsync(async (req: Request, res: Response) => {
   const user = (req as any).user;
   const result = await BookingService.insertIntoDB(req.body, user.email);
-  //console.log(user);
+
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,

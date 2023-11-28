@@ -44,46 +44,14 @@ const update = zod_1.z.object({
     body: zod_1.z.object({
         startTime: timeStringSchema.optional(),
         endTime: timeStringSchema.optional(),
-        startDate: zod_1.z
-            .string({
-            required_error: 'Start Date is required',
-        })
-            .optional(),
-        endDate: zod_1.z
-            .string({
-            required_error: 'End Date is required',
-        })
-            .optional(),
-        startingPoint: zod_1.z
-            .string({
-            required_error: 'Start Time is required',
-        })
-            .optional(),
-        endPoint: zod_1.z
-            .string({
-            required_error: 'Start Time is required',
-        })
-            .optional(),
-        dayOfWeek: zod_1.z
-            .enum([...bus_schedule_constants_1.daysInWeek], {
-            required_error: 'Day of week is required',
-        })
-            .optional(),
-        busFare: zod_1.z
-            .number({
-            required_error: 'Travel Fare is required',
-        })
-            .optional(),
-        busId: zod_1.z
-            .string({
-            required_error: 'Start Time is required',
-        })
-            .optional(),
-        driverId: zod_1.z
-            .string({
-            required_error: 'Driver is required',
-        })
-            .optional(),
+        startDate: zod_1.z.string().optional(),
+        endDate: zod_1.z.string().optional(),
+        startingPoint: zod_1.z.string().optional(),
+        endPoint: zod_1.z.string().optional(),
+        dayOfWeek: zod_1.z.enum([...bus_schedule_constants_1.daysInWeek]).optional(),
+        busFare: zod_1.z.number().optional(),
+        busId: zod_1.z.string().optional(),
+        driverId: zod_1.z.string().optional(),
     }),
 });
 const updateStatus = zod_1.z.object({

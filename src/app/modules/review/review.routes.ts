@@ -15,16 +15,16 @@ router.post(
   ),
   BusController.insertIntoDB
 );
+router.get(
+  '/driverReview',
+  auth(ENUM_USER_ROLE.DRIVER),
+  BusController.getAllReviewForSingleDriverFromDB
+);
 router.get('/:id', BusController.getByIdFromDB);
 router.get('/', BusController.getAllReviewFromDB);
 router.patch(
   '/:id',
-  auth(
-    ENUM_USER_ROLE.SUPER_ADMIN,
-    ENUM_USER_ROLE.ADMIN,
-    ENUM_USER_ROLE.TRAVELLER,
-    ENUM_USER_ROLE.DRIVER
-  ),
+  auth(ENUM_USER_ROLE.TRAVELLER),
   BusController.updateOneInDB
 );
 router.delete(

@@ -8,8 +8,8 @@ import { DriverValidation } from './driver.validations';
 const router = express.Router();
 
 router.post(
-  '/:id',
-  validateRequest(DriverValidation.create),
+  '/',
+  validateRequest(DriverValidation.createDriverZodSchema),
   auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
   DriverController.insertIntoDB
 );

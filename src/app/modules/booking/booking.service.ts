@@ -84,7 +84,6 @@ const insertIntoDB = async (data: IBookingCreateData, authUserId: string) => {
             bus_SitId: bus_Sit.bus_SitId,
           },
         });
-        console.log(result);
         const busScheduleId = data.busScheduleId;
         await prismaTransactionClient.bus_Schedule.update({
           where: {
@@ -199,7 +198,6 @@ const cancelAllPendingBooking = async (authUserId: string) => {
       bookingStatus: BookingStatus.Pending,
     },
   });
-  console.log(pendingBookings);
   if (pendingBookings.length === 0) {
     throw new ApiError(
       httpStatus.BAD_REQUEST,
@@ -209,7 +207,6 @@ const cancelAllPendingBooking = async (authUserId: string) => {
   const bookingResult = await prisma.$transaction(
     async prismaTransactionClient => {
       await asyncForEach(pendingBookings, async (pendingBooking: Booking) => {
-        console.log(pendingBooking);
         const result = await prismaTransactionClient.booking.delete({
           where: {
             id: pendingBooking.id,
@@ -328,7 +325,7 @@ const getUserConfirmedBooking = async (
   if (!result.length) {
     throw new ApiError(
       httpStatus.BAD_REQUEST,
-      "You haven'y confirm any bookings yet."
+      "You haven't confirm any bookings yet."
     );
   }
   return {
@@ -352,8 +349,17 @@ const getUserCompletedBooking = async (
       bookingStatus: BookingStatus.Completed,
     },
     include: {
-      bus_Schedule: true,
+      bus_Schedule: {
+        include: {
+          driver: {
+            include: {
+              user: true,
+            },
+          },
+        },
+      },
       Bus_Sit: true,
+      review: true,
     },
   });
 

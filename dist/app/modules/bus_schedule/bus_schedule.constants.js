@@ -36,4 +36,4 @@ exports.daysInWeek = [
     'Thursday',
     'Friday',
 ];
-exports.busSchedulestatus = ['Ongoing', 'Arrived'];
+exports.busSchedulestatus = ['Upcoming', 'Ongoing', 'Arrived'];

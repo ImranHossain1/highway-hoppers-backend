@@ -36,4 +36,4 @@ export const daysInWeek = [
   'Thursday',
   'Friday',
 ];
-export const busSchedulestatus = ['Ongoing', 'Arrived'];
+export const busSchedulestatus = ['Upcoming', 'Ongoing', 'Arrived'];

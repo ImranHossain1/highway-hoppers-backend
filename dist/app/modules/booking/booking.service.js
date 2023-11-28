@@ -283,7 +283,7 @@ const getUserConfirmedBooking = (id) => __awaiter(void 0, void 0, void 0, functi
         },
     });
     if (!result.length) {
-        throw new ApiError_1.default(http_status_1.default.BAD_REQUEST, "You haven'y confirm any bookings yet.");
+        throw new ApiError_1.default(http_status_1.default.BAD_REQUEST, "You haven't confirm any bookings yet.");
     }
     return {
         data: result,

@@ -144,6 +144,98 @@ const getByIdFromDB = async (id: string): Promise<Bus_Schedule | null> => {
 
   return result;
 };
+const getByDriverId = async (
+  id: string,
+  filters: IBusScheduleFilterRequest,
+  options: IPaginationOptions
+): Promise<IGenericResponse<Bus_Schedule[]>> => {
+  const { limit, page, skip } = paginationHelpers.calculatePagination(options);
+  const { searchTerm, ...filterData } = filters;
+  const andConditions = [];
+
+  if (searchTerm) {
+    andConditions.push({
+      OR: busScheduleSearchableFields.map(field => ({
+        [field]: {
+          contains: searchTerm,
+          mode: 'insensitive',
+        },
+      })),
+    });
+  }
+
+  if (Object.keys(filterData).length > 0) {
+    andConditions.push({
+      AND: Object.keys(filterData).map(key => {
+        if (busScheduleRelationalFields.includes(key)) {
+          return {
+            [busScheduleRelationalFieldsMapper[key]]: {
+              id: (filterData as any)[key],
+            },
+          };
+        } else {
+          return {
+            [key]: {
+              equals: (filterData as any)[key],
+            },
+          };
+        }
+      }),
+    });
+  }
+  const whereConditions: Prisma.Bus_ScheduleWhereInput =
+    andConditions.length > 0 ? { AND: andConditions } : {};
+
+  const user = await prisma.user.findUnique({
+    where: {
+      email: id,
+    },
+  });
+  if (!user) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'User Not Found');
+  }
+  whereConditions.driver = {
+    userId: user.id,
+  };
+  const result = await prisma.bus_Schedule.findMany({
+    where: whereConditions,
+    skip,
+    take: limit,
+    orderBy:
+      options.sortBy && options.sortOrder
+        ? { [options.sortBy]: options.sortOrder }
+        : {
+            createdAt: 'desc',
+          },
+    include: {
+      bus: true,
+      driver: {
+        include: {
+          user: true,
+        },
+      },
+    },
+  });
+  if (!result) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Journey Not Found');
+  }
+  const total = await prisma.bus_Schedule.count({
+    where: {
+      driver: {
+        userId: user.id,
+      },
+    },
+  });
+
+  return {
+    meta: {
+      total,
+      page,
+      limit,
+    },
+    data: result,
+  };
+};
 const getAvailableSits = async (id: string): Promise<Bus_Sit[] | null> => {
   const result = await prisma.bus_Schedule.findUnique({
     where: {
@@ -303,4 +395,5 @@ export const BusScheduleService = {
   deleteByIdFromDB,
   updateScheduleStatus,
   getAvailableSits,
+  getByDriverId,
 };

@@ -1,7 +1,12 @@
-import { BookingStatus, Review } from '@prisma/client';
+import { BookingStatus, Prisma, Review } from '@prisma/client';
 import httpStatus from 'http-status';
 import ApiError from '../../../errors/ApiError';
+import { paginationHelpers } from '../../../helpers/paginationHelper';
+import { IGenericResponse } from '../../../interfaces/common';
+import { IPaginationOptions } from '../../../interfaces/pagination';
 import { prisma } from '../../../shared/prisma';
+import { reviewSearchableFields } from './review.constants';
+import { IReviewScheduleFilterRequest } from './review.interface';
 
 const insertIntoDB = async (
   data: Review,
@@ -10,10 +15,18 @@ const insertIntoDB = async (
 ): Promise<{
   message: string;
 }> => {
+  const user = await prisma.user.findUnique({
+    where: {
+      email: userId,
+    },
+  });
+  if (!user) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'User Not Found');
+  }
   const isBookingCompleted = await prisma.booking.findFirst({
     where: {
       id: bookingId,
-      userId: userId,
+      userId: user.id,
     },
     include: {
       review: true,
@@ -29,13 +42,13 @@ const insertIntoDB = async (
       'Your Journey is not Completed yet'
     );
   }
-  if (isBookingCompleted.review) {
+  if (isBookingCompleted.review !== null) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Review already completed');
   }
   await prisma.$transaction(async transactionClient => {
     const result = await transactionClient.review.create({
       data: {
-        userId: userId,
+        userId: user.id,
         bookingId: bookingId,
         review: data.review,
         rating: data.rating,
@@ -108,14 +121,58 @@ const getByIdFromDB = async (id: string): Promise<Review | null> => {
   }
   return result;
 };
-const getAllReviewFromDB = async (): Promise<Review[]> => {
+
+const getAllReviewFromDB = async (
+  filters: IReviewScheduleFilterRequest,
+  options: IPaginationOptions
+): Promise<IGenericResponse<Review[]>> => {
+  const { limit, page, skip } = paginationHelpers.calculatePagination(options);
+  const { searchTerm, ...filterData } = filters;
+  const andConditions = [];
+
+  if (searchTerm) {
+    andConditions.push({
+      OR: reviewSearchableFields.map(field => ({
+        [field]: {
+          contains: searchTerm,
+          mode: 'insensitive',
+        },
+      })),
+    });
+  }
+
+  if (Object.keys(filterData).length > 0) {
+    andConditions.push({
+      AND: Object.keys(filterData).map(key => ({
+        [key]: {
+          equals: (filterData as any)[key],
+        },
+      })),
+    });
+  }
+  const whereConditions: Prisma.ReviewWhereInput =
+    andConditions.length > 0 ? { AND: andConditions } : {};
+
   const result = await prisma.review.findMany({
+    where: whereConditions,
+    skip,
+    take: limit,
+    orderBy:
+      options.sortBy && options.sortOrder
+        ? { [options.sortBy]: options.sortOrder }
+        : {
+            createdAt: 'desc',
+          },
     include: {
       booking: {
         include: {
           bus_Schedule: {
             include: {
-              driver: true,
+              driver: {
+                include: {
+                  user: true,
+                },
+              },
             },
           },
         },
@@ -123,11 +180,110 @@ const getAllReviewFromDB = async (): Promise<Review[]> => {
       user: true,
     },
   });
-  if (result.length === 0) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'No Review found');
+  if (!result) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Journey Not Found');
   }
-  return result;
+  const total = await prisma.review.count({});
+
+  return {
+    meta: {
+      total,
+      page,
+      limit,
+    },
+    data: result,
+  };
 };
+const getAllReviewForSingleDriverFromDB = async (
+  id: string,
+  filters: IReviewScheduleFilterRequest,
+  options: IPaginationOptions
+): Promise<IGenericResponse<Review[]>> => {
+  const { limit, page, skip } = paginationHelpers.calculatePagination(options);
+  const { searchTerm, ...filterData } = filters;
+  const andConditions = [];
+
+  if (searchTerm) {
+    andConditions.push({
+      OR: reviewSearchableFields.map(field => ({
+        [field]: {
+          contains: searchTerm,
+          mode: 'insensitive',
+        },
+      })),
+    });
+  }
+
+  if (Object.keys(filterData).length > 0) {
+    andConditions.push({
+      AND: Object.keys(filterData).map(key => ({
+        [key]: {
+          equals: (filterData as any)[key],
+        },
+      })),
+    });
+  }
+  const whereConditions: Prisma.ReviewWhereInput =
+    andConditions.length > 0 ? { AND: andConditions } : {};
+
+  const user = await prisma.user.findUnique({
+    where: {
+      email: id,
+    },
+  });
+  if (!user) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'User Not Found');
+  }
+
+  whereConditions.booking = {
+    bus_Schedule: {
+      driver: {
+        userId: user.id,
+      },
+    },
+  };
+  const result = await prisma.review.findMany({
+    where: whereConditions,
+    skip,
+    take: limit,
+    orderBy:
+      options.sortBy && options.sortOrder
+        ? { [options.sortBy]: options.sortOrder }
+        : {
+            createdAt: 'desc',
+          },
+    include: {
+      booking: {
+        include: {
+          bus_Schedule: {
+            include: {
+              driver: {
+                include: {
+                  user: true,
+                },
+              },
+            },
+          },
+        },
+      },
+      user: true,
+    },
+  });
+  if (!result) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Journey Not Found');
+  }
+  const total = await prisma.review.count({});
+
+  return {
+    meta: {
+      total,
+      page,
+      limit,
+    },
+    data: result,
+  };
+};
+
 const updateOneInDB = async (
   id: string,
   userId: string,
@@ -135,10 +291,18 @@ const updateOneInDB = async (
 ): Promise<{
   message: string;
 }> => {
+  const user = await prisma.user.findUnique({
+    where: {
+      email: userId,
+    },
+  });
+  if (!user) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'User Not Found');
+  }
   const isReviewExists = await prisma.review.findFirst({
     where: {
       id: id,
-      userId: userId,
+      userId: user.id,
     },
     include: {
       booking: {
@@ -182,7 +346,7 @@ const updateOneInDB = async (
     await prisma.review.update({
       where: {
         id,
-        userId: userId,
+        userId: user.id,
       },
       data: payload,
       include: {
@@ -204,10 +368,19 @@ const deleteByIdFromDB = async (
 ): Promise<{
   message: string;
 }> => {
+  const user = await prisma.user.findUnique({
+    where: {
+      email: userId,
+    },
+  });
+  if (!user) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'User Not Found');
+  }
+
   const isReviewExists = await prisma.review.findFirst({
     where: {
       id: id,
-      userId: userId,
+      userId: user.id,
     },
     include: {
       booking: {
@@ -251,7 +424,7 @@ const deleteByIdFromDB = async (
     await prisma.review.delete({
       where: {
         id,
-        userId: userId,
+        userId: user.id,
       },
       include: {
         booking: {
@@ -273,4 +446,5 @@ export const ReviewService = {
   updateOneInDB,
   deleteByIdFromDB,
   getAllReviewFromDB,
+  getAllReviewForSingleDriverFromDB,
 };
