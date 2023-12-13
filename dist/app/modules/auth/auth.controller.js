@@ -69,39 +69,22 @@ const loginUser = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void
         data: others,
     });
 }));
-/* const socialLogin = catchAsync(async (req: Request, res: Response) => {
-  const result = await AuthService.socialLogin(req.body);
-  const { refreshToken, ...others } = result;
-  // set refresh token into cookie
-  const cookieOptions = {
-    secure: config.env === 'production',
-    httpOnly: true,
-  };
-  res.cookie('refreshToken', refreshToken, cookieOptions);
-
-  sendResponse<ILoginUserResponse>(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: 'User logged in Successfully',
-    data: others,
-  });
-}); */
 const refreshToken = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const refreshToken = req.headers.authorization;
     const result = yield auth_service_1.AuthService.refreshToken(refreshToken);
     //set refresh token into cookie
-    const cookieOptions = {
-        secure: config_1.default.env === 'production',
-        httpOnly: true,
-    };
-    res.cookie('refreshToken', refreshToken, cookieOptions);
+    /*   const cookieOptions = {
+      secure: config.env === 'production',
+      httpOnly: true,
+    }; */
+    // res.cookie('refreshToken', refreshToken, cookieOptions);
     /* if ('refreshToken' in result) {
       delete result.refreshToken;
     } */
     (0, sendResponse_1.default)(res, {
         statusCode: http_status_1.default.OK,
         success: true,
-        message: 'User logged in Successfully',
+        message: 'Refresh token Successfully',
         data: result,
     });
 }));

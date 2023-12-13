@@ -1,6 +1,17 @@
-## Root Api
+## Live Site Link: https://highwayhoppers.vercel.app/home
 
-https://travel-ageny-backend.vercel.app/api/v1/
+## Frontend Code: https://github.com/ImranHossain1/highway-hoppers-frontend
+
+## Backend Root Api: https://travel-ageny-backend.vercel.app/api/v1/
+
+## Authentication:
+
+1. Admin Authentication:
+
+```bash
+      email: imran@gmail.com
+      password: admin123
+```
 
 ### User Authentication:
 
