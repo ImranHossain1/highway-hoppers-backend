@@ -4,6 +4,40 @@
 
 ## Backend Root Api: https://travel-ageny-backend.vercel.app/api/v1/
 
+## Run Locally
+
+Requirements: **Node 18+** and a running **PostgreSQL** database.
+
+```bash
+# 1. Install dependencies (generates the Prisma client automatically)
+npm install
+
+# 2. Create your env file and fill in the values (DATABASE_URL, JWT secrets, etc.)
+cp .env.example .env
+
+# 3. Apply the database schema / migrations
+npm run prisma:migrate      # dev: creates + applies migrations
+# or, against an existing DB:
+# npm run prisma:deploy
+
+# 4. Start the dev server (auto-reload)
+npm run dev                 # http://localhost:5000/api/v1
+```
+
+Need a database quickly? Spin one up with Docker:
+
+```bash
+docker run --name hh-postgres -e POSTGRES_PASSWORD=postgres \
+  -e POSTGRES_DB=highway_hoppers -p 5432:5432 -d postgres:16
+```
+
+Useful scripts: `npm run build` (compile to `dist/`), `npm run start:prod`
+(run compiled build), `npm run prisma:studio` (browse data), `npm run lint:fix`.
+
+> Point the frontend at this server by setting its API base URL to
+> `http://localhost:5000/api/v1`, and keep `CLIENT_SITE=http://localhost:3000`
+> in `.env` so CORS allows the Next.js dev server.
+
 ## Authentication:
 
 1. Admin Authentication:
@@ -145,3 +179,7 @@ sample input:
 ```
 
 - /review/:reviewId (DELETE) DELETE USER'S REVIEW - ALSO UPDATE DRIVERS RATING (ONLY PARTICULAR USER CAN DO THIS)
+
+Admin — admin@hh.com / admin123
+Driver — karim.driver@hh.com (+rahim, +jamal) / driver123
+Traveller — ayesha@hh.com, tanvir@hh.com / traveller123

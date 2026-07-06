@@ -69,7 +69,7 @@ const insertIntoDB = (data, authUserId) => __awaiter(void 0, void 0, void 0, fun
         yield (0, utils_1.asyncForEach)(data.sits, (bus_Sit) => __awaiter(void 0, void 0, void 0, function* () {
             const result = yield prismaTransactionClient.booking.create({
                 data: {
-                    userId: isAuthUser.id,
+                    userId: isAuthUser.id, // Associate the booking with the authenticated user
                     busScheduleId: data.busScheduleId,
                     bus_SitId: bus_Sit.bus_SitId,
                 },

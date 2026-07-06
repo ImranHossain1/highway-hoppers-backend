@@ -39,8 +39,8 @@ const getSingleUserProfile = (0, catchAsync_1.default)((req, res) => __awaiter(v
     });
 }));
 const updateOneInDB = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _b;
-    const id = (_b = req.user) === null || _b === void 0 ? void 0 : _b.email;
+    var _a;
+    const id = (_a = req.user) === null || _a === void 0 ? void 0 : _a.email;
     const result = yield profile_service_1.UserProfileService.updateUserProfile(id, req.body);
     (0, sendResponse_1.default)(res, {
         statusCode: http_status_1.default.OK,

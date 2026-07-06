@@ -1,3 +1,7 @@
 node_modules
 .env
 .vercel
+
+# uploaded files (keep dir, ignore contents)
+uploads/*
+!uploads/.gitkeep

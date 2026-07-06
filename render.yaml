@@ -1,0 +1,46 @@
+# Render deploy config for the Highway Hoppers backend.
+# Frontend deploys separately on Vercel.
+#
+# In the Render dashboard, set the values marked `sync: false` (secrets):
+#   DATABASE_URL          -> your Neon DIRECT connection string (no -pooler)
+#   CLIENT_SITE           -> your Vercel URL, e.g. https://highway-hoppers.vercel.app
+#   JWT_SECRET            -> a long random string
+#   JWT_REFRESH_SECRET    -> a different long random string
+#   DEFAULT_ADMIN_PASS    -> admin seed password
+#   DEFAULT_FACULTY_PASS  -> faculty seed password
+#   DEFAULT_STUDENT_PASS  -> student seed password
+#   CLOUDINARY_URL        -> from Cloudinary (enables cloud image uploads)
+services:
+  - type: web
+    name: highway-hoppers-backend
+    runtime: docker
+    region: frankfurt
+    plan: free
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /api/v1/driver
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: JWT_EXPIRES_IN
+        value: 1d
+      - key: JWT_REFRESH_EXPIRES_IN
+        value: 365d
+      - key: BCRYPT_SALT_ROUNDS
+        value: "12"
+      - key: DATABASE_URL
+        sync: false
+      - key: CLIENT_SITE
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: JWT_REFRESH_SECRET
+        sync: false
+      - key: DEFAULT_ADMIN_PASS
+        sync: false
+      - key: DEFAULT_FACULTY_PASS
+        sync: false
+      - key: DEFAULT_STUDENT_PASS
+        sync: false
+      - key: CLOUDINARY_URL
+        sync: false

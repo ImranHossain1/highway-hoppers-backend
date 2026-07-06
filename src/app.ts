@@ -5,6 +5,7 @@ import globalErrorHandler from './app/middlewares/globalErrorHandler';
 import routes from './app/routes';
 
 import cookieParser from 'cookie-parser';
+import path from 'path';
 import config from './config';
 
 const app: Application = express();
@@ -15,6 +16,9 @@ app.use(cookieParser());
 //parser
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// serve uploaded images
+app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
 app.use('/api/v1', routes);
 

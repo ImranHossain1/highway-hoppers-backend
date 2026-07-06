@@ -6,11 +6,13 @@ import { BusScheduleRoutes } from '../modules/bus_schedule/bus_schedule.routes';
 import { DriverRoutes } from '../modules/driver/driver.routes';
 import { UserProfileRoutes } from '../modules/profile/profile.route';
 import { ReviewRoutes } from '../modules/review/review.routes';
+import { UploadRoutes } from '../modules/upload/upload.route';
 
 const router = express.Router();
 
 const moduleRoutes = [
   { path: '/auth', route: AuthRoutes },
+  { path: '/upload', route: UploadRoutes },
   { path: '/user', route: UserProfileRoutes },
   { path: '/bus', route: BusRoutes },
   { path: '/bus-schedule', route: BusScheduleRoutes },
