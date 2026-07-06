@@ -22,6 +22,6 @@ COPY . .
 
 EXPOSE 5000
 
-# Apply migrations against the DB, then start the server (transpile-only,
-# so the container never dies on a tsc type error).
-CMD ["sh", "-c", "npx prisma migrate deploy && npm run dev"]
+# Apply migrations (non-fatal — DB may already be migrated / pooled endpoint),
+# then start the server (transpile-only, so it never dies on a tsc type error).
+CMD ["sh", "-c", "npx prisma migrate deploy || echo 'migrate skipped'; npm run dev"]
