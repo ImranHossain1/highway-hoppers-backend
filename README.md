@@ -32,22 +32,23 @@ Built with Express, TypeScript, Prisma & PostgreSQL — featuring JWT auth, role
 
 ## 🧱 Tech Stack
 
-| Layer | Technology |
-|---|---|
-| Runtime | Node.js + TypeScript |
-| Framework | Express |
-| ORM / DB | Prisma · PostgreSQL |
-| Auth | JSON Web Tokens · bcrypt |
-| Validation | Zod |
-| Uploads | Multer · Cloudinary |
-| Logging | Winston |
-| Tooling | ts-node-dev · ESLint · Prettier · Husky |
+| Layer      | Technology                              |
+| ---------- | --------------------------------------- |
+| Runtime    | Node.js + TypeScript                    |
+| Framework  | Express                                 |
+| ORM / DB   | Prisma · PostgreSQL                     |
+| Auth       | JSON Web Tokens · bcrypt                |
+| Validation | Zod                                     |
+| Uploads    | Multer · Cloudinary                     |
+| Logging    | Winston                                 |
+| Tooling    | ts-node-dev · ESLint · Prettier · Husky |
 
 ## 🚀 Getting Started
 
 ### Prerequisites
+
 - Node.js 20+ **or** Docker Desktop
-- A PostgreSQL database (local, or hosted like Supabase / Neon)
+- A PostgreSQL database (local, or hosted like Supabase)
 
 ### Option A — Docker (recommended)
 
@@ -79,18 +80,18 @@ npm run dev
 
 Create a `.env` file (see [`.env.example`](.env.example)):
 
-| Variable | Description | Example |
-|---|---|---|
-| `NODE_ENV` | `development` or `production` | `development` |
-| `PORT` | Server port | `5000` |
-| `DATABASE_URL` | PostgreSQL connection string | `postgresql://user:pass@host:5432/db` |
-| `CLIENT_SITE` | Allowed CORS origin (frontend URL) | `http://localhost:3000` |
-| `BCRYPT_SALT_ROUNDS` | Password hashing rounds | `12` |
-| `JWT_SECRET` | Access-token signing secret | *(long random string)* |
-| `JWT_REFRESH_SECRET` | Refresh-token signing secret | *(long random string)* |
-| `JWT_EXPIRES_IN` | Access-token lifetime | `1d` |
-| `JWT_REFRESH_EXPIRES_IN` | Refresh-token lifetime | `365d` |
-| `CLOUDINARY_URL` | Cloudinary credentials (enables cloud uploads) | `cloudinary://key:secret@cloud` |
+| Variable                 | Description                                    | Example                               |
+| ------------------------ | ---------------------------------------------- | ------------------------------------- |
+| `NODE_ENV`               | `development` or `production`                  | `development`                         |
+| `PORT`                   | Server port                                    | `5000`                                |
+| `DATABASE_URL`           | PostgreSQL connection string                   | `postgresql://user:pass@host:5432/db` |
+| `CLIENT_SITE`            | Allowed CORS origin (frontend URL)             | `http://localhost:3000`               |
+| `BCRYPT_SALT_ROUNDS`     | Password hashing rounds                        | `12`                                  |
+| `JWT_SECRET`             | Access-token signing secret                    | _(long random string)_                |
+| `JWT_REFRESH_SECRET`     | Refresh-token signing secret                   | _(long random string)_                |
+| `JWT_EXPIRES_IN`         | Access-token lifetime                          | `1d`                                  |
+| `JWT_REFRESH_EXPIRES_IN` | Refresh-token lifetime                         | `365d`                                |
+| `CLOUDINARY_URL`         | Cloudinary credentials (enables cloud uploads) | `cloudinary://key:secret@cloud`       |
 
 > **Never commit `.env`.** It is gitignored. In production, set these in your host's dashboard.
 
@@ -98,16 +99,16 @@ Create a `.env` file (see [`.env.example`](.env.example)):
 
 Base path: `/api/v1`
 
-| Resource | Base Route | Purpose |
-|---|---|---|
-| Auth | `/auth` | Sign up, sign in, refresh token, change password |
-| Upload | `/upload` | Image upload (Cloudinary / disk) |
-| Profile | `/user` | View & update the authenticated user's profile |
-| Buses | `/bus` | CRUD for buses (auto-generates seats) |
+| Resource  | Base Route      | Purpose                                          |
+| --------- | --------------- | ------------------------------------------------ |
+| Auth      | `/auth`         | Sign up, sign in, refresh token, change password |
+| Upload    | `/upload`       | Image upload (Cloudinary / disk)                 |
+| Profile   | `/user`         | View & update the authenticated user's profile   |
+| Buses     | `/bus`          | CRUD for buses (auto-generates seats)            |
 | Schedules | `/bus-schedule` | CRUD for routes; available-seat & status queries |
-| Bookings | `/booking` | Create, confirm, cancel seat bookings |
-| Reviews | `/review` | Post, update, delete journey reviews |
-| Drivers | `/driver` | Create & manage drivers |
+| Bookings  | `/booking`      | Create, confirm, cancel seat bookings            |
+| Reviews   | `/review`       | Post, update, delete journey reviews             |
+| Drivers   | `/driver`       | Create & manage drivers                          |
 
 <details>
 <summary><strong>Common endpoints</strong></summary>
@@ -122,20 +123,21 @@ GET  /api/v1/user/my-profile      # (auth) current profile
 PATCH /api/v1/user/update-profile # (auth) edit profile
 POST /api/v1/upload               # (auth) upload image
 ```
+
 </details>
 
 ## 📜 Scripts
 
-| Command | Description |
-|---|---|
-| `npm run dev` | Start dev server with hot reload |
-| `npm run build` | Compile TypeScript to `dist/` |
-| `npm run start:prod` | Run the compiled build |
+| Command                  | Description                      |
+| ------------------------ | -------------------------------- |
+| `npm run dev`            | Start dev server with hot reload |
+| `npm run build`          | Compile TypeScript to `dist/`    |
+| `npm run start:prod`     | Run the compiled build           |
 | `npm run prisma:migrate` | Create & apply a migration (dev) |
-| `npm run prisma:deploy` | Apply migrations (production) |
-| `npm run prisma:studio` | Open Prisma Studio (DB GUI) |
-| `npm run lint:check` | Lint the codebase |
-| `npm run prettier:fix` | Format the codebase |
+| `npm run prisma:deploy`  | Apply migrations (production)    |
+| `npm run prisma:studio`  | Open Prisma Studio (DB GUI)      |
+| `npm run lint:check`     | Lint the codebase                |
+| `npm run prettier:fix`   | Format the codebase              |
 
 ## 🗂️ Project Structure
 
@@ -166,7 +168,7 @@ Deployed on **Render** as a Docker web service.
 3. Set the `sync: false` env vars in the Render dashboard (`DATABASE_URL`, `JWT_SECRET`, `JWT_REFRESH_SECRET`, `CLIENT_SITE`, `CLOUDINARY_URL`)
 4. Deploy — migrations run automatically on boot
 
-> **Hosted database note:** use an **IPv4-reachable** connection string (e.g. a Supabase *Session pooler* URL) — Render's network is IPv4-only.
+> **Hosted database note:** use an **IPv4-reachable** connection string (e.g. a Supabase _Session pooler_ URL) — Render's network is IPv4-only.
 
 ## 👤 Author
 
